@@ -301,13 +301,17 @@ function onKill(z, region, src, shotgunClose) {
   if (L.phase === 'fight' && L.kills >= L.quota && L.flowers >= L.flowersNeed) spawnBoss();
 }
 function spawnBoss() {
-  const L = G.level; if (!L.def.boss || L.phase !== 'fight') return; const def = { ...L.def.boss }; L.phase = 'boss'; if ((L.def.id === 'mine' || L.def.id === 'stadium' || L.def.id === 'arkadelphia') && A.ctx) playMusic('boss');
+  const L = G.level; if (!L.def.boss || L.phase !== 'fight') return; const def = { ...L.def.boss }; L.phase = 'boss'; if ((L.def.id === 'mine' || L.def.id === 'stadium' || L.def.id === 'arkadelphia' || L.def.id === 'square') && A.ctx) playMusic('boss');
   const at = L.anc.bossAt; const b = makeBoss(def, at); L.boss = b; if (!b.z) Z.hittables.push(b);
   H.boss.style.display = 'block'; setText('bossn', def.name); sfx('roar', null, 1); A.intensity = 1;
   if (def.hog) { toast('BOSS INCOMING', def.name, 3.4, true); slowmo(1.2, 0.35); b.aT = 5; b.state = { kind: 'taunt', t: -2.5 }; b.z.hold = true; b.z.ch.play('Idle_Loop', 0.2);
     setTimeout(() => say('SHAYLA', "Oh, HELL no. The mascot's eaten the whole marching band. And he's... three stories tall.", 4, 3), 600);
     setTimeout(() => G.kennedy.active && G.kennedy.say("Babe, he's pointing at you. I think that's flirting. Shoot him in the snout.", 4, 3), 4800);
     setTimeout(() => say('SHAYLA', "Nobody points at the bride. Pig. SOOIE.", 3, 3), 9000); return; }
+  if (def.bulldog) { toast('BOSS INCOMING', def.name, 3.4, true); slowmo(1.2, 0.35); b.aT = 4.5; b.state = { kind: 'taunt', t: -3 }; b.z.hold = true; b.z.ch.play('Idle_Loop', 0.2);
+    setTimeout(() => say('SHAYLA', "Is that a purple bulldog? With a SPIKED collar? On the square? Kayleigh, is this your ex?", 4, 3), 600);
+    setTimeout(() => G.kennedy.active && G.kennedy.say("Somebody didn't get walked today. Babe, aim for the jowls. There's a LOT of jowl.", 4, 3), 4800);
+    setTimeout(() => say('SHAYLA', "Kayleigh says if I save the girdle she'll let me keep it. Sit. STAY. Die.", 3.4, 3), 9000); return; }
   if (def.badger) { toast('BOSS INCOMING', def.name, 3.4, true); slowmo(1.2, 0.35); b.aT = 4.5; b.state = { kind: 'taunt', t: -3 }; b.z.hold = true; b.z.ch.play('Walk_Loop', 0.2);
     setTimeout(() => say('SHAYLA', "Why is there a nine-foot badger in a turtleneck between me and my MOTHER?", 4, 3), 600);
     setTimeout(() => G.kennedy.active && G.kennedy.say("Lost his way to a homecoming game. Real grumpy about it. Like you before coffee.", 4, 3), 4800);
@@ -491,6 +495,7 @@ function testHooks() {
     state: () => ({ mode: G.mode, level: G.levelIdx, phase: G.level && G.level.phase, kills: G.level && G.level.kills, quota: G.level && G.level.quota, hp: G.player && Math.round(G.player.hp), fps: Math.round(E.fps), dyn: E.dynScale, alive: aliveCount(), items: S.data.items, gold: S.data.gold, team: Math.round(G.team || 0), teamT: G.teamT, ts: G.timeScale, flowers: G.level && G.level.flowers, combos: G.level && G.level.combos, tandems: G.level && G.level.tandems, weapon: G.player && G.player.weapon, run: G.run, kennedy: G.kennedy && G.kennedy.active, boss: G.level && G.level.boss ? Math.round(G.level.boss.hp) : null, timeLeft: G.level && G.level.timeLeft }),
     autopilot(on = true) { G.autopilot = on; G.autoSkipCine = on ? 300 : 0; }, autoSkip(ms) { G.autoSkipCine = ms; },
     skipCine() { const e = document.getElementById('cineskip'); if (e) e.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); },
+    pickup(type, x, z) { return !!spawnPickup(type, x, z, 1); },
     click(id) { const e = document.getElementById(id); if (e) e.click(); return !!e; },
     killAll() { for (const z of Z.list) if (z.alive && !z.dead && !z.reserved) z.damage(99999, 'head', null, null, 'test'); },
     toBoss() { const L = G.level; if (L && L.phase === 'fight') { L.kills = L.quota - 1; L.flowers = L.flowersNeed; } },

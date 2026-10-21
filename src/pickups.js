@@ -27,7 +27,7 @@ function model(type) {
   else if (type === 'flower') { for (const [dx, dz] of [[0, 0], [0.18, 0.1], [-0.15, 0.12]]) { const f = columbine(1.9); f.position.set(dx, 0, dz); g.add(f); }
     const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.4, 14, 12, 1, true), new THREE.MeshBasicMaterial({ color: 0x4a8cff, transparent: true, opacity: 0.32, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending })); beam.position.y = 7; g.add(beam); g.userData.beam = beam; }
   else if (type === 'gold') { g.add(goldBar()); }
-  else if (type.startsWith('relic_')) { const r = relic(type.slice(6)); r.scale.setScalar(1.6); r.position.y = 0.5; g.add(r); const l = new THREE.PointLight(0xfff0c0, 4, 4, 1.5); l.position.y = 1.2; g.add(l); }
+  else if (type.startsWith('relic_')) { const r = relic(type.slice(6)); r.scale.setScalar(1.6); r.position.y = 0.5; g.add(r); const l = new THREE.PointLight(type === 'relic_girdle' ? 0xffc8d8 : 0xfff0c0, type === 'relic_girdle' ? 1.2 : 4, 4, 1.5); l.position.y = 1.2; g.add(l); }
   const ring = new THREE.Mesh(type === 'flower' ? new THREE.RingGeometry(0.9, 1.1, 32) : new THREE.RingGeometry(0.3, 0.38, 24), type === 'flower' ? new THREE.MeshBasicMaterial({ color: 0x6aa8ff, transparent: true, opacity: 0.7, depthWrite: false }) : m.ring); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.02; g.add(ring); g.userData.ring = ring;
   g.traverse(o => { if (o.isMesh && o !== ring) o.castShadow = true; });
   return g;
@@ -41,6 +41,7 @@ export function updatePickups(dt) {
   for (const p of P.list) {
     if (!p.alive) continue; p.t += dt; const kid = p.g.children; for (const c of kid) if (c !== p.g.userData.ring && c !== p.g.userData.beam) { c.rotation.y += dt * 1.6; }
     p.g.userData.ring.scale.setScalar(1 + Math.sin(p.t * 4) * 0.1);
+    if (p.type.startsWith('relic_') && Math.random() < dt * 10) particle(new THREE.Vector3(p.pos.x + (Math.random() - .5) * 0.9, 0.5 + Math.random() * 0.9, p.pos.z + (Math.random() - .5) * 0.9), new THREE.Vector3(0, 0.4, 0), p.type === 'relic_girdle' ? new THREE.Color(1, 0.75, 0.85) : new THREE.Color(1, 0.95, 0.7), 0.03, 0.9, -0.5);
     let r = p.type === 'flower' ? 2.4 : 1.25; const k = G.kennedy; let collector = null;
     if (Math.hypot(pl.pos.x - p.pos.x, pl.pos.z - p.pos.z) < r) collector = 'player'; else if (k && k.active && !k.down && (p.type === 'flower' || p.type === 'gold') && Math.hypot(k.pos.x - p.pos.x, k.pos.z - p.pos.z) < r) collector = 'kennedy';
     if (collector && !(p.type === 'med' && pl.hp >= pl.maxHp) && !(p.type === 'ammo' && !G.needsAmmo())) {

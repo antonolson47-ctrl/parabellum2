@@ -79,7 +79,7 @@ export const LEVELS = [
   // 3 ─────────────────────────────── FAYETTEVILLE SQUARE (day)
   { id: 'square', name: 'The Fayetteville Square', shift: 'SCENE 3 · SOMETHING BORROWED', obj: 'Hold the Square for Kayleigh', music: 'square', quota: 44, outfits: ['hipster', 'farmer', 'hogfan', 'jogger', 'hipster'], mix: { walker: 0.55, runner: 0.18, spitter: 0.12, snatcher: 0.05, brute: 0.1 },
     env: { sky: ['#4a8ad8', '#d8ecf8'], fog: ['#d0e0ea', 45, 130], hemi: ['#e8f4ff', '#5a5040', 1.0], sun: ['#fff4e0', 2.5, 15, 25, 10], exposure: 0.95 },
-    boss: { kind: 'zombie', name: 'THE KOMBUCHA BRO', outfit: 'hipster', hp: 2300, scale: 1.85, spit: 'acid', spitRate: 1.8, charge: true },
+    boss: { kind: 'zombie', name: 'SPIKE, THE PURPLE MENACE', outfit: 'dogsuit', hp: 2800, scale: 3.4, bulldog: true },
     item: 'girdle',
     build(W) {
       W.bounds = { minX: -34, maxX: 34, minZ: -34, maxZ: 34 };

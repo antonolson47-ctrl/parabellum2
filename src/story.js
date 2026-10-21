@@ -4,6 +4,7 @@ import { E } from './engine.js';
 import { World, T, std, texMat } from './world.js';
 import { PM, truck, table, cooler, stringLights, building, car, lamp, pine, tree } from './props.js';
 import { makeCharacter } from './chars.js';
+import { dressForm } from './scenery.js';
 import { skyDome, mountains, redRock, juniper, grandstand, lightTower, turfTex, storefront, globeLamp, shieldSign, poleBarn, mineTimber, lantern, oreCart, goldBar, relic, columbine } from './scenery.js';
 import { H } from './hud.js';
 import { grillInterior } from './grill.js';
@@ -45,6 +46,7 @@ const SETS = {
     W.floor(-30, 30, -30, 30, texMat('plaza', T.stone('#b8a890')), 3); building(W, 0, -9, 12, 10, 8, { color: '#9a4a32', frame: '#f2efe6', cols: 4, rows: 2, lit: 0.2, trim: '#f2efe6' }); W.box(0, 8.4, -9, 4, 2.5, 4, col('#f2efe6'));
     W.sign(['OLD POST OFFICE', 'est. 1911'], 0, 6.2, -3.97, 6, 1.0, { bg: '#f2efe6', fg: '#5a2a1a' }); tree(W, -6, -2, 1.3, { color: 0x3a7a2a }); tree(W, 7, -1, 1.2, { color: 0x4a8a2a });
     storefront(W, -14, 4, 11, 10, Math.PI / 2, { color: '#8a3a2a', sign: 'BLUE BIRD BOOKS', awning: '#2a6a4a' }); globeLamp(W, 3, 2);
+    { const df = dressForm(1.3); df.position.set(1.35, 0, 1.35); df.rotation.y = -0.6; W.group.add(df); const gl = new THREE.PointLight(0xffc0d0, 3, 3, 2); gl.position.set(1.35, 1.6, 1.8); W.group.add(gl); }
     return { hemi: ['#e8f4ff', '#5a5040', 1.0], key: ['#fff4e0', 2.4, 6, 8, 6], exposure: 0.95 };
   },
   parking(W, sc) {

@@ -157,7 +157,45 @@ export function goldBar() { const g = new THREE.Group(); const b = new THREE.Mes
 export function relic(kind) { // story items: brooch, girdle, necklace
   const g = new THREE.Group();
   if (kind === 'brooch') { const r = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.03, 8, 20), goldMat()); r.position.y = 0.4; g.add(r); const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.07), std('ruby', { color: 0xc8102e, emissive: 0x500010, roughness: 0.1, metalness: 0.3 })); gem.position.y = 0.4; g.add(gem); }
-  else if (kind === 'girdle') { const r = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.16, 0.3, 16, 1, true), std('girdle', { color: 0xe8b0a0, roughness: 0.6, side: THREE.DoubleSide })); r.position.y = 0.4; g.add(r); const lace = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.015, 6, 24), std('lace', { color: 0xffffff })); lace.rotation.x = Math.PI / 2; lace.position.y = 0.55; g.add(lace); }
+  else if (kind === 'girdle') { const gd = girdle(); gd.position.y = 0.12; g.add(gd); }
   else { const r = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.012, 6, 32), metal('#e8e8f0')); r.position.y = 0.42; g.add(r); const d = new THREE.Mesh(new THREE.OctahedronGeometry(0.06), new THREE.MeshStandardMaterial({ color: 0xeaf6ff, roughness: 0.02, metalness: 0.2, emissive: 0x6080a0, emissiveIntensity: 0.6 })); d.position.y = 0.26; g.add(d); }
   return g;
+}
+
+// Kayleigh's lucky push-up girdle: blush satin high-waist shapewear, hourglass lathe, panel seams, scalloped lace trim, little bow.
+function girdleTex() { return canvasTex(256, 256, (x, w, h) => {
+  const gr = x.createLinearGradient(0, 0, w, 0); for (let i = 0; i <= 8; i++) gr.addColorStop(i / 8, i % 2 ? '#f2b8b8' : '#fbd2cc'); x.fillStyle = gr; x.fillRect(0, 0, w, h); // satin sheen bands
+  x.strokeStyle = 'rgba(150,70,80,.55)'; x.lineWidth = 2; for (let i = 0; i < 8; i++) { const px = (i + 0.5) * w / 8; x.setLineDash([5, 4]); x.beginPath(); x.moveTo(px, 0); x.bezierCurveTo(px - 6, h * 0.4, px + 6, h * 0.6, px, h); x.stroke(); } x.setLineDash([]);
+  x.fillStyle = 'rgba(255,255,255,.35)'; for (let y of [10, h - 22]) for (let i = 0; i < 32; i++) { x.beginPath(); x.arc(i * 8 + 4, y + 6, 4, 0, 7); x.fill(); } // lace band pattern
+  x.strokeStyle = 'rgba(255,255,255,.5)'; x.lineWidth = 1; for (let i = 0; i < 40; i++) { const px = Math.random() * w, py = Math.random() < 0.5 ? Math.random() * 30 : h - Math.random() * 30; x.beginPath(); x.arc(px, py, 3, 0, 7); x.stroke(); }
+}); }
+export function girdle(scale = 1) {
+  const g = new THREE.Group();
+  const prof = [[0.15, 0.0], [0.163, 0.04], [0.15, 0.1], [0.11, 0.18], [0.092, 0.215], [0.105, 0.26], [0.122, 0.3], [0.125, 0.32]].map(p => new THREE.Vector2(p[0], p[1]));
+  const geo = new THREE.LatheGeometry(prof, 40); geo.scale(1, 1, 0.72);
+  const satin = new THREE.MeshPhysicalMaterial({ map: girdleTex(), roughness: 0.32, metalness: 0, clearcoat: 0.6, clearcoatRoughness: 0.25, sheen: 1, sheenColor: new THREE.Color(0xffe0e8), side: THREE.DoubleSide, emissive: 0x401818, emissiveIntensity: 0.25 });
+  const body = new THREE.Mesh(geo, satin); g.add(body);
+  // leg openings: two gentle bumps at the bottom so it reads as briefs, not a tube
+  for (const sx of [-1, 1]) { const leg = new THREE.Mesh(new THREE.SphereGeometry(0.075, 16, 10, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5), satin); leg.scale.set(1, 0.55, 0.85); leg.position.set(sx * 0.062, 0.012, 0); g.add(leg); }
+  const lace = new THREE.MeshStandardMaterial({ color: 0xf4dde2, roughness: 0.8 });
+  for (const [y, r] of [[0.322, 0.125], [0.006, 0.15]]) for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI * 2; const sc = new THREE.Mesh(new THREE.SphereGeometry(0.014, 6, 4, 0, Math.PI * 2, 0, Math.PI / 2), lace); sc.scale.set(1.2, y > 0.1 ? 1.2 : -1.2, 0.5); sc.position.set(Math.cos(a) * r, y, Math.sin(a) * r * 0.72); sc.rotation.y = -a + Math.PI / 2; g.add(sc); }
+  const bowM = new THREE.MeshStandardMaterial({ color: 0xe0607a, roughness: 0.35, emissive: 0x401020 });
+  const bow = new THREE.Group(); for (const sx of [-1, 1]) { const loop = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.045, 10), bowM); loop.rotation.z = sx * Math.PI / 2; loop.position.x = sx * 0.024; loop.scale.z = 0.4; bow.add(loop); const tail = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.035, 0.003), bowM); tail.position.set(sx * 0.008, -0.022, 0); tail.rotation.z = sx * 0.3; bow.add(tail); }
+  const knot = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 6), bowM); bow.add(knot); bow.position.set(0, 0.3, 0.096); g.add(bow);
+  // garter straps with little clips + front lace panel
+  const strap = new THREE.MeshStandardMaterial({ color: 0xe88aa0, roughness: 0.4 }), clip = new THREE.MeshStandardMaterial({ color: 0xd8d8e0, metalness: 0.9, roughness: 0.25 });
+  for (const a of [0.55, 1.15, Math.PI - 1.15, Math.PI - 0.55]) { const x = Math.cos(a) * 0.15, zz = Math.sin(a) * 0.15 * 0.72; const st = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.12, 0.004), strap); st.position.set(x, -0.06, zz); st.rotation.y = -a + Math.PI / 2; g.add(st); const c = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.018, 0.01), clip); c.position.set(x, -0.125, zz); c.rotation.y = -a + Math.PI / 2; g.add(c); }
+  const panel = new THREE.Mesh(new THREE.PlaneGeometry(0.07, 0.22), new THREE.MeshStandardMaterial({ map: laceTex(), transparent: true, roughness: 0.8, depthWrite: false })); panel.position.set(0, 0.16, 0.1 * 0.72 + 0.006); g.add(panel);
+  if (scale !== 1.04) { // little satin hanger on top so it reads as a garment
+    const hk = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.005, 6, 16, Math.PI * 1.3), clip); hk.position.set(0, 0.43, 0); hk.rotation.z = -0.3; g.add(hk);
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.28, 8), new THREE.MeshStandardMaterial({ color: 0xf0c0d0, roughness: 0.5 })); bar.rotation.z = Math.PI / 2; bar.position.y = 0.39; g.add(bar);
+    for (const sx of [-1, 1]) { const sp = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.075, 0.004), strap); sp.position.set(sx * 0.07, 0.355, 0); sp.rotation.z = sx * 0.25; g.add(sp); } }
+  g.scale.setScalar(scale); return g;
+}
+function laceTex() { return canvasTex(64, 192, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = 'rgba(255,240,245,.9)'; x.lineWidth = 2; for (let y = 6; y < h; y += 12) for (let i = 0; i < 3; i++) { x.beginPath(); x.arc(10 + i * 22, y, 6, 0, 7); x.stroke(); } x.fillStyle = 'rgba(255,255,255,.25)'; x.fillRect(0, 0, w, h); }); }
+export function dressForm(scale = 1) { // tailor's dummy wearing the girdle (cutscene prop)
+  const g = new THREE.Group(); const wood = new THREE.MeshStandardMaterial({ color: 0x6a4a2a, roughness: 0.6 }), linen = new THREE.MeshStandardMaterial({ color: 0xe8dcc0, roughness: 0.9 });
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.75, 8), wood); pole.position.y = 0.375; g.add(pole); for (let i = 0; i < 3; i++) { const leg = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.02, 0.25), wood); leg.rotation.y = i * 2.09; leg.position.set(Math.sin(i * 2.09) * 0.11, 0.01, Math.cos(i * 2.09) * 0.11); g.add(leg); }
+  const torso = new THREE.Mesh(new THREE.LatheGeometry([[0.0, 0], [0.13, 0.0], [0.12, 0.1], [0.095, 0.2], [0.12, 0.33], [0.14, 0.42], [0.1, 0.5], [0.04, 0.53], [0, 0.53]].map(p => new THREE.Vector2(p[0], p[1])), 28), linen); torso.scale.z = 0.72; torso.position.y = 0.72; g.add(torso);
+  const gd = girdle(1.04); gd.position.y = 0.7; g.add(gd); g.scale.setScalar(scale); return g;
 }

@@ -20,6 +20,7 @@ const { chromium } = require('playwright'); const serve = require('./serve.cjs')
     if ((Date.now() - t0) % 20000 < 2100) console.log(JSON.stringify({ boss: st.boss, hp: st.hp, alive: st.alive }));
   }
   if (!mid) await shot('hog_boss_midfight');
+  if (process.env.GIRDLE) { await p.evaluate(() => { const P = window.__PB, G = P.G; P.autopilot(false); const e = G.level.anc.exit; G.player.pos.set(e.x + 1.6, 0, e.z + 1.6); G.player.yaw = Math.atan2(1.6, 1.6); G.player.pitch = -0.35; }); await sleep(2500); await shot('girdle_closeup'); await p.evaluate(() => window.__PB.autopilot(true)); }
   await sleep(1200); await shot('hog_boss_death');
   await p.evaluate(() => { window.__PB.G.autoSkipCine = 300; });
   for (let i = 0; i < 60; i++) { await sleep(1000); const m = await p.evaluate(() => [window.__PB.G.mode, window.__PB.G.levelIdx]); if (m[0] === 'play' && m[1] === LV + 1) break; await p.evaluate(() => { const e = window.__PB.G.level && window.__PB.G.level.anc.exit; if (window.__PB.G.level && window.__PB.G.level.phase === 'exit' && e) window.__PB.tp(e.x, e.z); window.__PB.skipCine(); const b = [...document.querySelectorAll('#screens button')].find(b => /NEXT SCENE|CONTINUE/.test(b.textContent)); if (b) b.click(); }); }

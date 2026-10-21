@@ -155,3 +155,57 @@ export function badgerUpdate(boss, dt) {
   start(boss, 'burrow'); sfx('roar', z.pos, 0.6);
 }
 function dirt(p, n) { for (let i = 0; i < n; i++) particle(tmp2.set(p.x + rand(-1, 1), 0.1, p.z + rand(-1, 1)), new THREE.Vector3(rand(-2, 2), rand(1, 4), rand(-2, 2)), new THREE.Color(0.35, 0.25, 0.15), rand(0.04, 0.09), 0.7); }
+// ───────── SPIKE, THE PURPLE MENACE (Scene 3, Fayetteville square): zombie bulldog mascot
+export function bulldogify(boss) {
+  const z = boss.z, b = z.bones;
+  const purple = new THREE.MeshStandardMaterial({ map: purpleFur(), roughness: 1 }), dark = new THREE.MeshStandardMaterial({ color: 0x24104a, roughness: 0.9 });
+  const white = new THREE.MeshStandardMaterial({ color: 0xf6f6f2, roughness: 0.35 }), black = new THREE.MeshStandardMaterial({ color: 0x0c0c0c, roughness: 0.5 }), grey = new THREE.MeshStandardMaterial({ color: 0x9a9a9a, metalness: 0.7, roughness: 0.35 });
+  const gore = new THREE.MeshStandardMaterial({ color: 0x5a0408, roughness: 0.3, emissive: 0x200000 });
+  const head = new THREE.Group(); b.Head.add(head); head.position.set(0, 0.04, 0.03); boss.hogHead = head;
+  const skull = new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 18), purple); skull.scale.set(1.15, 0.95, 1.05); head.add(skull);
+  const brow = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.05, 0.08), dark); brow.position.set(0, 0.08, 0.16); brow.rotation.x = 0.3; head.add(brow);
+  const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.13, 18, 12), purple); muzzle.scale.set(1.25, 0.8, 0.9); muzzle.position.set(0, -0.06, 0.17); head.add(muzzle);
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 10), black); nose.scale.set(1.4, 0.8, 0.9); nose.position.set(0, 0.0, 0.29); head.add(nose);
+  const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.07, 0.02), new THREE.MeshStandardMaterial({ color: 0x300010 })); mouth.position.set(0, -0.08, 0.27); head.add(mouth);
+  for (let i = 0; i < 9; i++) { const x = -0.09 + i * 0.0225; const up = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.035, 4), white); up.rotation.x = Math.PI; up.position.set(x, -0.06, 0.282); head.add(up); const dn = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.035, 4), white); dn.position.set(x + 0.011, -0.1, 0.282); head.add(dn); }
+  for (const sx of [-1, 1]) {
+    const jowl = new THREE.Mesh(new THREE.SphereGeometry(0.1, 14, 10), purple); jowl.scale.set(0.9, 1.1, 0.9); jowl.position.set(sx * 0.14, -0.12, 0.15); head.add(jowl);
+    const fang = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.07, 6), white); fang.position.set(sx * 0.1, -0.03, 0.27); head.add(fang);
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 10), white); eye.scale.z = 0.5; eye.position.set(sx * 0.08, 0.04, 0.19); head.add(eye);
+    const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 6), new THREE.MeshBasicMaterial({ color: 0xc040ff, toneMapped: false })); pupil.position.set(sx * 0.075, 0.035, 0.208); head.add(pupil);
+    const ear = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 8), dark); ear.scale.set(1, 0.6, 0.3); ear.position.set(sx * 0.19, 0.12, -0.02); ear.rotation.z = -sx * 0.9; head.add(ear);
+  }
+  const glow = new THREE.PointLight(0xc040ff, 2.5, 4, 2); glow.position.set(0, 0.03, 0.32); head.add(glow);
+  const wound = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), gore); wound.scale.set(1, 0.7, 0.4); wound.position.set(-0.16, 0.06, 0.1); head.add(wound);
+  // spiked collar
+  if (b.neck_01) { const col = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.03, 8, 24), black); col.rotation.x = Math.PI / 2; b.neck_01.add(col); for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; const sp = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.06, 6), grey); sp.position.set(Math.cos(a) * 0.13, 0, Math.sin(a) * 0.13); sp.rotation.z = -Math.PI / 2; sp.rotation.y = -a; const piv = new THREE.Group(); piv.add(sp); b.neck_01.add(piv); } boss.collar = b.neck_01; }
+  for (const s of ['l', 'r']) { along(b['upperarm_' + s], b['lowerarm_' + s], 0.07, 0.065, purple, 1, 0.04); along(b['lowerarm_' + s], b['hand_' + s], 0.065, 0.055, purple, 1, 0.02); along(b['calf_' + s], b['foot_' + s], 0.07, 0.065, purple, 1, 0.06);
+    if (b['hand_' + s]) { const f = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 10), purple); f.scale.set(1, 0.85, 1.2); b['hand_' + s].add(f); } }
+  if (b.spine_03) for (let i = 0; i < 5; i++) { const sp = new THREE.Mesh(new THREE.CircleGeometry(rand(0.025, 0.05), 10), gore); sp.position.set(rand(-0.12, 0.12), rand(-0.1, 0.1), 0.162); b.spine_03.add(sp); }
+  boss.aT = 4; boss.summonT = 9; boss.state = null;
+}
+let PF; function purpleFur() { return PF || (PF = canvasTex(256, 256, (x, w, h) => { x.fillStyle = '#4a1c8a'; x.fillRect(0, 0, w, h); for (let i = 0; i < 2200; i++) { x.strokeStyle = Math.random() < 0.5 ? 'rgba(30,8,60,.5)' : 'rgba(140,90,220,.35)'; x.lineWidth = rand(0.6, 1.6); const px = rand(0, w), py = rand(0, h), a = rand(1.2, 1.9); x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a) * 7, py + Math.sin(a) * 7); x.stroke(); }
+  for (let i = 0; i < 8; i++) { const px = rand(0, w), py = rand(0, h), r = rand(8, 18); const g = x.createRadialGradient(px, py, 0, px, py, r); g.addColorStop(0, '#5a6a4a'); g.addColorStop(0.6, '#3a1010'); g.addColorStop(1, 'rgba(60,0,0,0)'); x.fillStyle = g; x.beginPath(); x.arc(px, py, r, 0, 7); x.fill(); } })); }
+export function bulldogUpdate(boss, dt) {
+  const z = boss.z, pl = G.player; if (z.dead) { if (!boss.deathFx) { boss.deathFx = true; deathBurst(boss); } return; }
+  const dx = pl.pos.x - z.pos.x, dz = pl.pos.z - z.pos.z, d = Math.hypot(dx, dz); const st = boss.state;
+  if (st) { st.t += dt; z.ch.mixer.update(dt);
+    if (st.kind === 'lunge') { if (st.t < 0.45) { z.yaw += angDiff(z.yaw, Math.atan2(dx, dz)) * Math.min(1, dt * 8); z.root.rotation.y = z.yaw; z.root.rotation.x = st.t * 0.6; return; }
+      if (!st.dir) { st.dir = { x: Math.sin(z.yaw), z: Math.cos(z.yaw) }; sfx('roar', z.pos, 0.8); }
+      if (st.t < 0.95) { z.pos.x += st.dir.x * 16 * dt; z.pos.z += st.dir.z * 16 * dt; G.world.collide(z.pos, 0.8, 0.1, 2); if (!st.hit && d < 3) { st.hit = true; pl.hurt(20, z); sfx('splat', pl.pos, 0.8); } }
+      if (st.t > 1.3) { z.root.rotation.x = 0; end(boss); } return; }
+    if (st.kind === 'spin') { z.yaw += dt * 14; z.root.rotation.y = z.yaw; if (Math.random() < 0.5) particle(tmp.set(z.pos.x + rand(-2, 2), rand(3, 6), z.pos.z + rand(-2, 2)), tmp2.set(rand(-4, 4), rand(0, 3), rand(-4, 4)), new THREE.Color(0.8, 0.8, 0.85), 0.05, 0.4);
+      st.tick = (st.tick || 0) - dt; if (d < 4.2 && st.tick <= 0) { st.tick = 0.5; pl.hurt(11, z); } if (st.t > 1.8) end(boss); return; }
+    if (st.kind === 'howl') { z.yaw += angDiff(z.yaw, Math.atan2(dx, dz)) * Math.min(1, dt * 4); z.root.rotation.y = z.yaw; if (z.bones.Head) z.bones.Head.rotation.x -= 0.5;
+      for (let i = 0; i < 3; i++) particle(tmp.set(z.pos.x + Math.sin(z.yaw) * 1.5, z.scale * 1.55, z.pos.z + Math.cos(z.yaw) * 1.5), tmp2.set(Math.sin(z.yaw) * rand(3, 8) + rand(-1, 1), rand(-1, 2), Math.cos(z.yaw) * rand(3, 8) + rand(-1, 1)), new THREE.Color(0.75, 0.95, 0.6), rand(0.04, 0.09), 0.9);
+      if (!st.hit && st.t > 0.6) { st.hit = true; if (d < 15) { pl.slow = 2.2; pl.hurt(6, z); G.onBossPhase && G.onBossPhase(pick(['Ew. EW. Dog slobber in my HAIR.', "I can't move, I'm covered in drool!", 'That howl went straight to my ovaries. Not in a good way.'])); } }
+      if (st.t > 1.5) end(boss); return; }
+    if (st.kind === 'summon' || st.kind === 'taunt') { z.yaw += angDiff(z.yaw, Math.atan2(dx, dz)) * Math.min(1, dt * 4); z.root.rotation.y = z.yaw; z.pos.y = Math.abs(Math.sin(st.t * 8)) * 0.2; if (st.t > (st.kind === 'taunt' ? 1.5 : 1.3)) end(boss); return; }
+  }
+  boss.aT -= dt; boss.summonT -= dt; if (boss.aT > 0 || z.atkPhase > 0) return;
+  boss.aT = rand(3.4, 5) * (0.7 + 0.3 * z.hp / z.maxHp);
+  if (boss.summonT <= 0) { boss.summonT = rand(13, 17); start(boss, 'summon'); sfx('roar', z.pos, 1); for (let i = 0; i < 3; i++) { const a = rand(0, 6.28); G.spawnRiser && G.spawnRiser(z.pos.x + Math.cos(a) * 3.5, z.pos.z + Math.sin(a) * 3.5); } G.onBossPhase && G.onBossPhase(pick(['He whistled up the whole dog park. Dead dog park.', 'More zombies? On the SQUARE? On a Saturday?!', 'Kayleigh, stay behind the fountain!'])); return; }
+  if (d < 5) { start(boss, 'spin'); sfx('roar', z.pos, 0.6); return; }
+  if (Math.random() < 0.5) { start(boss, 'lunge'); return; }
+  start(boss, 'howl'); sfx('roar', z.pos, 1);
+}
