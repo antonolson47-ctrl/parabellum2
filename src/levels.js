@@ -21,7 +21,7 @@ export const LEVELS = [
   // 1 ─────────────────────────────── RAZORCRACK STADIUM (night)
   { id: 'stadium', name: 'Razorcrack Stadium', shift: 'SCENE 1 · WOO PIG SOOIE-CIDE', obj: 'Clear the field', music: 'stadium', quota: 30, outfits: ['hogfan', 'hogfan', 'ref', 'hogfan', 'band'], mix: { walker: 0.7, runner: 0.2, brute: 0.1 },
     env: { dark: true, sky: ['#04060e', '#121a30'], fog: ['#0c1220', 40, 150], hemi: ['#9ab0e0', '#20140c', 0.65], sun: ['#e8eeff', 1.1, 8, 20, 6], exposure: 0.85 },
-    boss: { kind: 'zombie', name: 'BIG HOSS, THE MASCOT', outfit: 'mascot', hp: 1600, scale: 1.9, charge: true },
+    boss: { kind: 'zombie', name: 'BIG RED, THE RAZORCRACK', outfit: 'hogsuit', hp: 2200, scale: 3.4, charge: true, hog: true },
     build(W) {
       W.bounds = { minX: -28, maxX: 28, minZ: -52, maxZ: 52 };
       skyDome(W, { top: '#02030a', mid: '#0a1228', bot: '#1a2238', stars: 1, clouds: 0.3, seed: 11 });
@@ -51,7 +51,7 @@ export const LEVELS = [
   // 2 ─────────────────────────────── DOWNTOWN ARKADELPHIA (day) → 67 GRILL
   { id: 'arkadelphia', name: 'Downtown Arkadelphia', shift: 'SCENE 2 · SOMETHING OLD', obj: 'Fight down Main Street', music: 'arkadelphia', quota: 38, outfits: ['farmer', 'hipster', 'church', 'jogger', 'church'], mix: { walker: 0.6, runner: 0.18, spitter: 0.1, brute: 0.12 },
     env: { sky: ['#4a8ad8', '#cfe4f4'], fog: ['#cfe0ec', 50, 140], hemi: ['#eaf4ff', '#5a5040', 0.9], sun: ['#fff1d8', 2.6, 18, 26, 8], exposure: 0.95 },
-    boss: { kind: 'zombie', name: 'THE CHURCH LADY', outfit: 'church', hp: 2000, scale: 1.8, spit: 'custard', spitRate: 2 },
+    boss: { kind: 'zombie', name: 'GRUMPY THE BADGER', outfit: 'badgersuit', hp: 2600, scale: 3.3, badger: true },
     item: 'brooch',
     build(W) {
       W.bounds = { minX: -12, maxX: 12, minZ: -86.5, maxZ: 40 };

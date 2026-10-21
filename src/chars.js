@@ -487,6 +487,8 @@ const ZOMBIE_OUTFITS = {
   hogfan: { top: { color: '#9d2235', color2: '#ffffff', pat: 0, rough: 0.9, neck: 'crew', sleeve: 'short' }, pants: { color: '#3d5a86', color2: '#2a3d5c', pat: 2 }, shoes: { color: '#eee', color2: '#9d2235' } },
   ref: { top: { color: '#f2f2f2', color2: '#111111', pat: 1, rough: 0.9, neck: 'crew', sleeve: 'short' }, pants: { color: '#111', color2: '#222', pat: 0 }, shoes: { color: '#111', color2: '#333' } },
   band: { top: { color: '#9d2235', color2: '#ffd84a', pat: 0, rough: 0.7, neck: 'crew', sleeve: 'long' }, pants: { color: '#f2f2f2', color2: '#ddd', pat: 0 }, shoes: { color: '#111', color2: '#333' } },
+  badgersuit: { top: { color: '#2a3ad8', color2: '#1e2ca8', pat: 0, rough: 0.95, neck: 'crew', sleeve: 'long', thick: 0.025 }, pants: { color: '#f2f0ea', color2: '#ddd', pat: 0, rough: 1 }, shoes: { color: '#f2f0ea', color2: '#ccc' } },
+  hogsuit: { top: { color: '#f2f0ea', color2: '#c8102e', pat: 0, rough: 0.9, neck: 'crew', sleeve: 'short', thick: 0.02 }, pants: { color: '#f2f0ea', color2: '#ddd', pat: 0, rough: 0.85 }, shoes: { color: '#c8102e', color2: '#fff' } },
   mascot: { top: { color: '#8a1a28', color2: '#5a0f18', pat: 3, rough: 1, neck: 'crew', sleeve: 'long', thick: 0.02 }, pants: { color: '#8a1a28', color2: '#5a0f18', pat: 3, rough: 1 }, shoes: { color: '#2a1a1a', color2: '#111' } },
   church: { top: { color: '#c86a9a', color2: '#f2d8e8', pat: 4, rough: 0.9, neck: 'crew', sleeve: 'long', gown: true }, shoes: { color: '#f2f2f2', color2: '#c86a9a' } },
   trucker: { top: { color: '#4a6a8a', color2: '#2a3a4a', pat: 1, rough: 0.9, neck: 'crew', sleeve: 'long' }, pants: { color: '#2a3d5c', color2: '#1a2a40', pat: 2 }, shoes: { color: '#4a3020', color2: '#222' } },

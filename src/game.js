@@ -77,7 +77,8 @@ export function initGame() {
   G.onBlast = p => { G.player.shake = 0.35; if (p) propBlast(G.world, p, 4, 9); };
   G.needsAmmo = () => ORDER.some(k => k !== 'pistol' && G.player.available().includes(k) && G.player.ammo[k].res < G.player.wstats(k).reserve);
   G.callKennedy = () => { if (G.level && G.level.callReady()) teamUp(); }; G.spawnMinion = spawnMinion; G.onMinionKill = m => { addFingers(1, m.pos); };
-  G.onBossDead = () => bossDefeated(); G.onBossPhase = t => { say('SHAYLA', t, 3, 3); sfx('roar', null, 0.6); };
+  G.onBossDead = () => bossDefeated(); G.spawnRiser = (x, z) => { const zz = freeZombie(); if (zz && G.world.isOpen(x, z)) zz.spawn(new THREE.Vector3(x, 0, z), Math.random() < 0.4 ? 'runner' : 'walker', { rise: true }); };
+  G.onBossTaunt = () => { const t = pick(['He keeps POINTING at me. Rude.', 'Point at me one more time, hog.', 'Is he... calling his shot? Oh, it is ON.']); say('SHAYLA', t, 2.6, 2); }; G.onBossPhase = t => { say('SHAYLA', t, 3, 3); sfx('roar', null, 0.6); };
   G.onTenureDenied = () => { toast('TENURE DENIED', 'His orbs are gone. He can bleed now.', 2.6); say('SHAYLA', 'Tenure DENIED, motherfucker.', 3, 3); };
   // first gesture -> audio
   const unlock = () => { try { if (!A.ctx) { initAudio(); setVolumes(S.data.settings.music, S.data.settings.sfx); if (G.mode === 'title' || G.mode === 'menu') playMusic('title'); } else if (A.ctx.state !== 'running') { const r = A.ctx.resume(); r && r.catch && r.catch(() => { }); } } catch (e) { console.warn('audio unlock', e); } };
@@ -300,9 +301,17 @@ function onKill(z, region, src, shotgunClose) {
   if (L.phase === 'fight' && L.kills >= L.quota && L.flowers >= L.flowersNeed) spawnBoss();
 }
 function spawnBoss() {
-  const L = G.level; if (!L.def.boss || L.phase !== 'fight') return; const def = { ...L.def.boss }; L.phase = 'boss'; if (L.def.id === 'mine' && A.ctx) playMusic('boss');
+  const L = G.level; if (!L.def.boss || L.phase !== 'fight') return; const def = { ...L.def.boss }; L.phase = 'boss'; if ((L.def.id === 'mine' || L.def.id === 'stadium' || L.def.id === 'arkadelphia') && A.ctx) playMusic('boss');
   const at = L.anc.bossAt; const b = makeBoss(def, at); L.boss = b; if (!b.z) Z.hittables.push(b);
   H.boss.style.display = 'block'; setText('bossn', def.name); sfx('roar', null, 1); A.intensity = 1;
+  if (def.hog) { toast('BOSS INCOMING', def.name, 3.4, true); slowmo(1.2, 0.35); b.aT = 5; b.state = { kind: 'taunt', t: -2.5 }; b.z.hold = true; b.z.ch.play('Idle_Loop', 0.2);
+    setTimeout(() => say('SHAYLA', "Oh, HELL no. The mascot's eaten the whole marching band. And he's... three stories tall.", 4, 3), 600);
+    setTimeout(() => G.kennedy.active && G.kennedy.say("Babe, he's pointing at you. I think that's flirting. Shoot him in the snout.", 4, 3), 4800);
+    setTimeout(() => say('SHAYLA', "Nobody points at the bride. Pig. SOOIE.", 3, 3), 9000); return; }
+  if (def.badger) { toast('BOSS INCOMING', def.name, 3.4, true); slowmo(1.2, 0.35); b.aT = 4.5; b.state = { kind: 'taunt', t: -3 }; b.z.hold = true; b.z.ch.play('Walk_Loop', 0.2);
+    setTimeout(() => say('SHAYLA', "Why is there a nine-foot badger in a turtleneck between me and my MOTHER?", 4, 3), 600);
+    setTimeout(() => G.kennedy.active && G.kennedy.say("Lost his way to a homecoming game. Real grumpy about it. Like you before coffee.", 4, 3), 4800);
+    setTimeout(() => say('SHAYLA', "Say that again after I shoot this sweater off him, babe.", 3, 3), 9000); return; }
   toast('BOSS INCOMING', def.name, 3, true); setTimeout(() => bark('boss', 3), 900); setTimeout(() => G.kennedy.active && G.kennedy.say(pick(KENNEDY.boss), 3, 2), 3500);
 }
 function bossDefeated() {

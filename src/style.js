@@ -55,7 +55,7 @@ html,body{margin:0;height:100%;width:100%;overflow:hidden;-webkit-text-size-adju
 .prog div{height:100%;border-radius:4px;background:linear-gradient(90deg,#ff9b3d,#ffd84a);width:0;transition:width .3s}
 .prog .half{position:absolute;left:50%;top:-4px;width:2px;height:15px;background:#7dd3ff;box-shadow:0 0 6px #7dd3ff}
 .prog .halflbl{position:absolute;left:50%;top:10px;transform:translateX(-50%);font-size:10px;color:#9fe0ff;white-space:nowrap;font-family:'Barlow Condensed';font-weight:800}
-.boss{position:absolute;left:50%;top:calc(66px + env(safe-area-inset-top));transform:translateX(-50%);width:min(420px,60vw);text-align:center;display:none}
+.boss{position:absolute;left:50%;top:calc(76px + env(safe-area-inset-top));transform:translateX(-50%);width:min(420px,60vw);text-align:center;display:none}
 .boss .n{font-family:'Black Ops One';font-size:14px;color:#ff8080;text-shadow:0 2px 2px #000}
 .boss .bar{height:10px;border:1.5px solid rgba(255,120,120,.8);background:rgba(40,0,0,.6);border-radius:5px;overflow:hidden}.boss .bar div{height:100%;background:linear-gradient(90deg,#a00,#ff4a3a);width:100%;transition:width .15s}
 .res{position:absolute;right:calc(56px + env(safe-area-inset-right));top:calc(10px + env(safe-area-inset-top));display:flex;gap:6px}

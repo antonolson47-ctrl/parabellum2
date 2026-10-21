@@ -9,6 +9,7 @@ import { blood, particle, sparks, gib, mist, decal } from './fx.js';
 import { sfx } from './audio.js';
 import { bike as bikeModel } from './props.js';
 import { rand, angDiff, clamp } from './util.js';
+import { hogify, hogUpdate, badgerify, badgerUpdate } from './hogboss.js';
 const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3();
 function sphereHit(o, d, maxD, c, r) { const oc = tmp2.subVectors(o, c); const b = oc.dot(d), cc = oc.lengthSq() - r * r, h = b * b - cc; if (h < 0) return -1; const t = -b - Math.sqrt(h); return t > 0 && t < maxD ? t : -1; }
 // ───────── generic hittable base
@@ -53,7 +54,7 @@ export class ZombieBoss {
     }
     if (def.bike) { this.bike = bikeModel(null, 0, 0, 0); E.scene.add(this.bike); this.bike.scale.setScalar(1.25); this.bikePhase = true; }
     if (G.levelIdx >= 0) z.spawn(new THREE.Vector3(at.x, 0, at.z), 'boss', { hp: def.hp, scale: def.scale, boss: def, name: def.name });
-    this.alive = true; this.maxHp = z.maxHp; z.root.visible = true;
+    this.alive = true; this.maxHp = z.maxHp; z.root.visible = true; if (def.hog) hogify(this); if (def.badger) badgerify(this);
     if (def.kind === 'professor') { this.orbs = []; for (let i = 0; i < 3; i++) { const o = new Orb(this, i); this.orbs.push(o); Z.hittables.push(o); } this.z.invuln = true; }
     if (this.bike) { this.z.hold = true; this.z.ch.play('Sitting_Idle_Loop', 0); this.chargeT = 2; }
     // make zombie damage respect invulnerability
@@ -61,7 +62,7 @@ export class ZombieBoss {
   }
   get hp() { return this.z.hp; } get dead() { return this.z.dead; } get pos() { return this.z.pos; }
   update(dt) {
-    const z = this.z; if (z.dead) { this.alive = false; if (this.bike) this.bike.visible = false; return; }
+    const z = this.z; if (this.def.hog) hogUpdate(this, dt); if (this.def.badger) badgerUpdate(this, dt); if (z.dead) { this.alive = false; if (this.bike) this.bike.visible = false; return; }
     if (this.orbs) { for (const o of this.orbs) o.update(dt); if (z.invuln && this.orbs.every(o => !o.alive)) { z.invuln = false; G.onTenureDenied && G.onTenureDenied(); } }
     if (this.bike && this.bikePhase) {
       // ride: charge at Shayla, overshoot, turn, repeat. Damage on contact.
