@@ -1,0 +1,21 @@
+const { chromium, devices } = require('playwright'); const serve = require('./serve.cjs');
+(async () => {
+  const s = await serve(); const br = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const dev = devices['iPhone 13']; const ctx = await br.newContext({ ...dev, viewport: { width: 844, height: 390 } }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+  const sleep = ms => new Promise(r => setTimeout(r, ms)); const shot = n => p.screenshot({ path: `../screenshots/${n}.png` });
+  const meas = () => p.evaluate(() => { const c = document.getElementById('c'); return { iw: innerWidth, ih: innerHeight, cw: c.clientWidth, ch: c.clientHeight, bw: c.width, bh: c.height, asp: window.__PB && window.__PB.G && 0, hint: getComputedStyle(document.getElementById('rotatehint')).display }; });
+  await p.goto(`http://127.0.0.1:${s.address().port}/${process.env.PAGE || 'dist/index.html'}`);
+  await p.waitForFunction(() => window.__PB && window.__PB.G.mode === 'title', null, { timeout: 240000 }); await sleep(1500);
+  await shot('title_landscape'); console.log('title L', JSON.stringify(await meas()));
+  await p.setViewportSize({ width: 390, height: 844 }); await sleep(1500); await shot('title_portrait'); console.log('title P', JSON.stringify(await meas()));
+  await p.setViewportSize({ width: 844, height: 390 }); await sleep(800);
+  await p.evaluate(() => { const P = window.__PB; P.S.data.seenIntro = false; P.startLevel(0); });
+  await p.waitForFunction(() => window.__PB.G.mode === 'cine', null, { timeout: 180000 }); await sleep(2500); await shot('shayla_outfit_cine_wide');
+  for (let i = 0; i < 2; i++) { await p.mouse.click(400, 200); await sleep(1500); } await shot('shayla_outfit_closeup');
+  await p.evaluate(() => window.__PB.skipCine()); await p.waitForFunction(() => window.__PB.G.mode === 'play', null, { timeout: 60000 }); await sleep(2500);
+  await shot('play_landscape_before'); console.log('play L', JSON.stringify(await meas()));
+  await p.setViewportSize({ width: 390, height: 844 }); await sleep(1500); await shot('play_rotated_portrait'); console.log('play P', JSON.stringify(await meas()));
+  await p.setViewportSize({ width: 844, height: 390 }); await sleep(1500); await shot('play_rotated_back_landscape'); console.log('play L2', JSON.stringify(await meas()));
+  const cam = await p.evaluate(() => { const c = window.__PB.G && window.__PB.E; return c ? c.camera.aspect : null; }); console.log('aspect', cam);
+  console.log('ERRS', JSON.stringify(errs)); await br.close(); s.close(); process.exit(0);
+})();

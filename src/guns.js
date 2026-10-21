@@ -1,5 +1,5 @@
 // Detailed procedural firearms: PBR materials with procedural normal/roughness maps and edge wear,
-// first-person viewmodels with posed hands (Shayla's skin + green scrubs), recoil/slide/bolt/pump/reload animation,
+// first-person viewmodels with posed hands (Shayla's bare arms, tank top), recoil/slide/bolt/pump/reload animation,
 // ejected casings, upgrade variants, Kennedy's world-model rifle and shop icons rendered from the 3D models.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
@@ -186,9 +186,9 @@ function buildHand(pose, left, opts = {}) {
     const L = [0.04, 0.032, 0.027], R = [0.0112, 0.0101, 0.0092]; for (let s = 0; s < 3; s++) { addSeg(o, R[s], L[s], s === 2); const n = new THREE.Object3D(); n.position.set(0, 0, -L[s] + R[s] * 0.3); n.rotation.x = -(t.c[s] || 0); o.add(n); o = n; } }
   // wrist + forearm (lathe, flattened) and the scrub sleeve: built along +z, then bent at the wrist toward opts.arm
   const handP = P; const A = new Part(); { const P = A;
-  const fa = new THREE.LatheGeometry([[0.0, 0.035], [0.024, 0.04], [0.026, 0.06], [0.028, 0.1], [0.034, 0.16], [0.04, 0.23], [0.043, 0.3], [0.044, 0.38], [0.0, 0.39]].map(p => new THREE.Vector2(p[0], p[1])), 18);
+  const fa = new THREE.LatheGeometry([[0.0, 0.035], [0.024, 0.04], [0.026, 0.06], [0.028, 0.1], [0.034, 0.16], [0.04, 0.23], [0.043, 0.3], [0.045, 0.4], [0.047, 0.5], [0.049, 0.6], [0.0, 0.61]].map(p => new THREE.Vector2(p[0], p[1])), 18);
   fa.rotateX(Math.PI / 2); fa.scale(1.18, 0.82, 1); P.add('skin', clean(fa, 0));
-  if (opts.sleeve !== false) {
+  if (opts.sleeve === true) { // tank top: bare arms by default
     const sl = new THREE.LatheGeometry([[0.05, 0.22], [0.056, 0.27], [0.062, 0.36], [0.066, 0.5]].map(p => new THREE.Vector2(p[0], p[1])), 20); sl.rotateX(Math.PI / 2); sl.scale(1.12, 0.92, 1);
     const pa = sl.attributes.position; for (let i = 0; i < pa.count; i++) { const a = Math.atan2(pa.getY(i), pa.getX(i)); const k = 1 + 0.035 * Math.sin(a * 5 + pa.getZ(i) * 40); pa.setX(i, pa.getX(i) * k); pa.setY(i, pa.getY(i) * k); } sl.computeVertexNormals();
     P.add('scrub', clean(sl, 0)); P.add('scrubdark', clean(new THREE.TorusGeometry(0.0515, 0.0045, 6, 22).scale(1.12, 0.92, 1).translate(0, 0, 0.222), 0));

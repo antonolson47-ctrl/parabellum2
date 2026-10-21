@@ -17,7 +17,7 @@ cat > $OUT/manifest.webmanifest <<'MAN'
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
-  "orientation": "landscape",
+  "orientation": "any",
   "background_color": "#0a0607",
   "theme_color": "#0a0607",
   "icons": [

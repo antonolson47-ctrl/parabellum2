@@ -454,9 +454,9 @@ function mustacheMaterial(color) {
 // ---------- character spec presets ----------
 const C = s => new THREE.Color(s);
 export const CAST = {
-  shayla: { base: 'female', tex: 'dark', skin: [1.15, 1.0, 0.88, 0], hair: { mesh: 'hair_long', color: '#22140c' }, brow: '#1a0f08',
-    outfit: { top: { color: '#2e7d5b', color2: '#24644a', pat: 0, rough: 0.85, neck: 'v', sleeve: 'short', hem: 0.07 }, pants: { color: '#2e7d5b', color2: '#24644a', pat: 0, rough: 0.85 }, shoes: { color: '#f1f1f1', color2: '#9aa' } },
-    acc: ['badge', 'stethoscope', 'watch'], scale: 1.0 },
+  shayla: { base: 'female', tex: 'dark', skin: [1.15, 1.0, 0.88, 0], hair: { mesh: 'hair_long', color: '#4a2c1a' }, brow: '#2a1a0e',
+    outfit: { top: { color: '#efe6d4', color2: '#d8ccb4', pat: 0, rough: 0.9, neck: 'scoop', sleeve: 'none', hem: 0.02 }, pants: { color: '#3d5a86', color2: '#2a3d5c', pat: 2, rough: 0.8 }, shoes: { color: '#6a4a30', color2: '#3a2a1a' } },
+    acc: ['belt', 'watch'], scale: 1.0 },
   kennedy: { base: 'male', tex: 'light', skin: [1.02, 0.8, 0.64, 0.05], hair: { mesh: 'hair_buzzed', color: '#1a120c' }, curls: '#1d140d', brow: '#160e08',
     outfit: { top: { color: '#a8322a', color2: '#2c1c16', pat: 1, rough: 0.9, neck: 'crew', sleeve: 'long', thick: 0.013, hem: 0.0 }, pants: { color: '#3d5a86', color2: '#2a3d5c', pat: 2, rough: 0.8 }, shoes: { color: '#3a2a1e', color2: '#1a120c' } },
     acc: ['mustache'], scale: 1.06 },
@@ -573,6 +573,8 @@ export function makeCharacter(key, opts = {}) {
       const bag = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.11, 0.05), M.clear()); bag.position.set(0.15, bp.pelvis.y + 0.0, 0.05); attach(bag, bone.pelvis);
       const stuff = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, 0.02), new THREE.MeshStandardMaterial({ color: 0xffd2e4 })); stuff.position.set(0.13, bp.pelvis.y - 0.01, 0.05); attach(stuff, bone.pelvis);
     }
+    if (a === 'belt') { const y = bp.pelvis.y + 0.075; const r = Math.max(0.12, surfZ(info, y, 0) + 0.004); const b = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.12, r * 1.12, 0.032, 28, 1, true), new THREE.MeshStandardMaterial({ color: 0x5a3820, roughness: 0.6, side: THREE.DoubleSide })); b.scale.z = 0.82; b.position.set(0, y, 0.0); attach(b, bone.pelvis);
+      const bk = new THREE.Mesh(new THREE.BoxGeometry(0.038, 0.028, 0.006), new THREE.MeshStandardMaterial({ color: 0xc8a050, metalness: 0.8, roughness: 0.3 })); bk.position.set(0, y, r * 0.92 + 0.006); attach(bk, bone.pelvis); }
     if (a === 'badge') {
       const y = bp.spine_03.y + 0.04, x = 0.085; const cv = document.createElement('canvas'); cv.width = 64; cv.height = 96; const k = cv.getContext('2d'); k.fillStyle = '#fff'; k.fillRect(0, 0, 64, 96); k.fillStyle = '#c33'; k.fillRect(0, 0, 64, 18); k.fillStyle = '#fff'; k.font = 'bold 12px sans-serif'; k.fillText('OMR', 20, 14); k.fillStyle = '#8a6a50'; k.fillRect(16, 26, 32, 34); k.fillStyle = '#111'; k.font = 'bold 11px sans-serif'; k.fillText('SHAYLA', 8, 76); k.font = '9px sans-serif'; k.fillText('RN', 26, 90);
       const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; const b = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.052, 0.003), [M.white(), M.white(), M.white(), M.white(), new THREE.MeshStandardMaterial({ map: t, roughness: 0.4 }), M.white()]);

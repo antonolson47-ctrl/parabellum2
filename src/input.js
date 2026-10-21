@@ -115,7 +115,7 @@ export function initInput(uiRoot) {
   addEventListener('blur', () => { I.fire = false; I.move.x = I.move.y = 0; for (const k in I.keys) I.keys[k] = false; clearTouches(true); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { I.fire = false; for (const k in I.keys) I.keys[k] = false; clearTouches(true); } });
   placeStickHome();
-  addEventListener('resize', placeStickHome);
+  addEventListener('resize', placeStickHome); addEventListener('orientationchange', () => { for (const t of [100, 400, 900]) setTimeout(placeStickHome, t); }); if (window.visualViewport) visualViewport.addEventListener('resize', placeStickHome);
 }
 function placeStickHome() { if (!stickEl) return; stickEl.style.left = (Math.max(90, innerWidth * 0.11)) + 'px'; stickEl.style.top = (innerHeight - Math.max(100, innerHeight * 0.2)) + 'px'; }
 function updateStick(p) {

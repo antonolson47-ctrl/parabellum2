@@ -21,7 +21,12 @@ export function initEngine(canvas, quality) {
   E.renderer = r; E.scene = new THREE.Scene();
   E.camera = new THREE.PerspectiveCamera(70, 1, 0.05, 160); E.scene.add(E.camera);
   setQuality(quality);
-  addEventListener('resize', resize); addEventListener('orientationchange', () => setTimeout(resize, 200));
+  // iOS Safari reports stale innerWidth/innerHeight right after a rotation, so re-measure a few times; also listen to visualViewport + screen.orientation
+  const burst = () => { resize(); for (const t of [60, 180, 400, 800]) setTimeout(resize, t); };
+  addEventListener('resize', burst); addEventListener('orientationchange', burst);
+  if (window.visualViewport) visualViewport.addEventListener('resize', burst);
+  if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', burst);
+  if (window.matchMedia) { const mq = matchMedia('(orientation: portrait)'); mq.addEventListener ? mq.addEventListener('change', burst) : mq.addListener && mq.addListener(burst); }
   resize();
   return E;
 }
@@ -31,7 +36,7 @@ export function setQuality(q) {
   E.composer = null; E.dynScale = 1; resize();
 }
 export function resize() {
-  const w = innerWidth, h = innerHeight; const r = E.renderer; if (!r) return;
+  const de = document.documentElement; const w = Math.round(de.clientWidth || innerWidth), h = Math.round(innerHeight || de.clientHeight); const r = E.renderer; if (!r) return;
   const pr = Math.min(devicePixelRatio || 1, E.q.pr) * E.dynScale;
   r.setPixelRatio(pr); r.setSize(w, h, false); r.domElement.style.width = w + 'px'; r.domElement.style.height = h + 'px';
   const asp = w / h; E.camera.aspect = asp;

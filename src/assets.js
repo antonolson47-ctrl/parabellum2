@@ -15,3 +15,4 @@ export async function loadTex(name) {
     bmp = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error('texture ' + name)); im.src = URL.createObjectURL(blob); }); }
   const t = new THREE.Texture(bmp); t.colorSpace = THREE.SRGBColorSpace; t.flipY = false; t.needsUpdate = true; return t;
 }
+export function assetURL(name) { if (window.__PB_ASSETS && window.__PB_ASSETS[name]) return 'data:image/jpeg;base64,' + window.__PB_ASSETS[name]; return (window.__PB_ASSET_BASE || '../build_assets/') + name + (window.__PB_VER ? '?v=' + window.__PB_VER : ''); }

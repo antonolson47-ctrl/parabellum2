@@ -1,6 +1,7 @@
 // Game flow: title, shifts, level lifecycle, spawn director, Kennedy call-in, bosses, pickups, barks, results, Vendy's shop, endings.
 import * as THREE from 'three';
 import { gunIcon, upgradeCfg } from './guns.js';
+import { assetURL } from './assets.js';
 import { E, render, trackFrame, setQuality, QUALITY, resize } from './engine.js';
 import { initAntiZoom, resetPageZoom, pageScale, ZOOM } from './antizoom.js';
 import { G } from './state.js';
@@ -128,10 +129,10 @@ function haulLine() { return `<span>${FINGER}${S.data.fingers}</span><span>💍 
 export function titleScreen() {
   G.mode = 'title'; showHUD(false); I.enabled = false; if (document.exitPointerLock && document.pointerLockElement) document.exitPointerLock(); if (A.ctx) playMusic('title');
   const last = LEVELS.length - 1; const next = Math.min(S.data.unlocked, last); const started = S.data.completed.length > 0; const beaten = S.data.completed.includes(last);
-  screen(`<h1>PARABELLUM 2</h1><h2>Something Old, Something Undead</h2>
+  screen(`<div class="coverbg" style="background-image:url('${assetURL('cover.jpg')}')"></div><div class="coverart" style="background-image:url('${assetURL('cover.jpg')}')" role="img" aria-label="PARABELLUM 2: Something Old, Something Undead"></div><h1 class="sr">PARABELLUM 2</h1><h2 class="sr">Something Old, Something Undead</h2><div class="tbottom">
   <div class="age">18+ · GRAPHIC GORE &amp; NONSTOP SWEARING<small>Blood, dismemberment, exploding heads and a bride-to-be who swears like a sailor. Grown-ups only.</small></div>
   <div class="menu"><button class="b" id="tplay">${beaten ? 'REPLAY' : started ? 'CONTINUE · SCENE ' + (next + 1) : 'SAY I DO'}</button><button class="b alt" id="tshifts">CHAPTERS</button><button class="b alt" id="tshop">VENDY'S</button><button class="b alt" id="tset">SETTINGS</button></div>
-  <div class="foot">${haulLine()}</div><div class="credit">A prequel to PARABELLUM · an original parody for Shayla &amp; Kennedy · all music &amp; sound procedurally generated</div>`, 'title');
+  <div class="foot">${haulLine()}</div><div class="credit">A prequel to PARABELLUM · an original parody for Shayla &amp; Kennedy · all music &amp; sound procedurally generated</div></div>`, 'title cover');
   onClick('tplay', () => startLevel(beaten ? 0 : next)); onClick('tshifts', shiftsScreen); onClick('tshop', () => shopScreen(titleScreen)); onClick('tset', () => settingsScreen(titleScreen));
 }
 function shiftsScreen() {

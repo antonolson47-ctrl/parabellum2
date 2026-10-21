@@ -6,7 +6,7 @@ set -e
 cd "$(dirname "$0")"
 mkdir -p dist/assets
 npx esbuild src/main.js --bundle --minify --format=iife --target=es2020 --legal-comments=none --outfile=dist/game.js --log-level=warning
-ASSETS="female.glb male.glb anims.glb hair_long.glb hair_buzzedfemale.glb hair_buzzed.glb hair_buns.glb hair_simpleparted.glb female_light.jpg male_light.jpg"
+ASSETS="female.glb male.glb anims.glb hair_long.glb hair_buzzedfemale.glb hair_buzzed.glb hair_buns.glb hair_simpleparted.glb female_light.jpg male_light.jpg cover.jpg"
 for a in $ASSETS; do cp build_assets/$a dist/assets/; done
 python3 - "$ASSETS" <<'PY'
 import sys, base64, json

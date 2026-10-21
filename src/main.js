@@ -11,7 +11,7 @@ addEventListener('error', e => { window.__PB_ERRORS.push(String(e.message || e))
 addEventListener('unhandledrejection', e => { window.__PB_ERRORS.push('rej: ' + String(e.reason && (e.reason.stack || e.reason.message) || e.reason)); });
 async function boot() {
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
-  document.body.insertAdjacentHTML('beforeend', `<canvas id="c"></canvas><div id="ui"></div><div class="load" id="boot"><div style="font-family:'Butcherman','Black Ops One';font-size:min(12vw,84px);color:#e8e2d0;text-shadow:0 0 18px rgba(255,0,0,.55),0 4px 0 #5a0000">PARABELLUM 2</div><div style="font-size:14px;color:#ffd84a;margin-top:6px">Scrubbing in…</div><div class="lb"><div id="bootbar"></div></div></div>`);
+  document.body.insertAdjacentHTML('beforeend', `<div class="rotatehint" id="rotatehint">↻ Turn your phone sideways for the best view</div><canvas id="c"></canvas><div id="ui"></div><div class="load" id="boot"><div style="font-family:'Butcherman','Black Ops One';font-size:min(12vw,84px);color:#e8e2d0;text-shadow:0 0 18px rgba(255,0,0,.55),0 4px 0 #5a0000">PARABELLUM 2</div><div style="font-size:14px;color:#ffd84a;margin-top:6px">Locking and loading…</div><div class="lb"><div id="bootbar"></div></div></div>`);
   load();
   initEngine(document.getElementById('c'), S.data.settings.quality);
   buildHUD(document.getElementById('ui'));
@@ -28,3 +28,8 @@ const retryBtn = '<br><button onclick="location.reload()" style="margin-top:10px
 const slow = setTimeout(() => bootMsg('Still loading… on a slow connection this can take a minute.' + retryBtn), 45000);
 boot().then(() => clearTimeout(slow)).catch(e => { clearTimeout(slow); console.error(e); window.__PB_ERRORS.push('boot: ' + (e.stack || e.message)); document.title = 'ERR ' + e.message;
   bootMsg('The game failed to load: ' + String(e && e.message || e).replace(/</g, '&lt;') + retryBtn); window.__PBshowErr && window.__PBshowErr('boot: ' + (e && e.message || e)); });
+
+// gentle rotate hint: only while in portrait on a touch phone, fades after a few seconds
+(() => { let t = 0; const upd = () => { const el = document.getElementById('rotatehint'); if (!el) return; const portrait = innerHeight > innerWidth; const touch = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+  if (portrait && touch) { el.classList.add('on'); clearTimeout(t); t = setTimeout(() => el.classList.remove('on'), 6000); } else el.classList.remove('on'); };
+  addEventListener('resize', upd); addEventListener('orientationchange', () => setTimeout(upd, 300)); addEventListener('load', upd); setTimeout(upd, 1500); })();

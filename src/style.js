@@ -1,7 +1,7 @@
 export const CSS = `
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;overflow:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%;background:#000;color:#fff;overscroll-behavior:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;font-family:'Barlow Condensed',sans-serif}
-#c{position:fixed;inset:0;display:block;touch-action:none}
+html,body{margin:0;height:100%;width:100%;overflow:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%;background:#000;color:#fff;overscroll-behavior:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;font-family:'Barlow Condensed',sans-serif}
+#c{position:fixed;left:0;top:0;display:block;touch-action:none}
 #ui{position:fixed;inset:0;pointer-events:none;touch-action:none}
 #ui *{pointer-events:none}
 #ui .pe,#ui .pe *{pointer-events:auto}
@@ -184,5 +184,23 @@ html.pagezoomed .resetv{background:#c8231d;border-color:#ffd84a;color:#fff;anima
  .rule{top:calc(172px + env(safe-area-inset-top))}
  .toast{top:calc(158px + env(safe-area-inset-top))}
  .title h1{font-size:17vw}.title h2{font-size:4.6vw}
+}
+
+.title.cover{justify-content:flex-end;background:#0a0607;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+.title.cover .coverbg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(18px) brightness(.45);transform:scale(1.1);z-index:0}
+.title.cover .coverart{position:absolute;inset:0;background-size:cover;background-position:center 20%;z-index:0}
+.title.cover .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.title.cover .tbottom{position:relative;z-index:1;width:100%;padding:28px 12px 0;background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.72) 40%,rgba(0,0,0,.85));display:flex;flex-direction:column;align-items:center}
+.title.cover .menu{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:6px}
+.title.cover .age{margin-top:0;font-size:12px;padding:1px 8px}.title.cover .age small{display:none}
+.title.cover .foot,.title.cover .credit{margin-top:4px}
+.rotatehint{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:50;background:rgba(10,6,7,.82);border:1px solid rgba(255,216,74,.5);color:#ffe9a8;padding:7px 14px;border-radius:20px;font-family:'Black Ops One';font-size:13px;letter-spacing:.5px;pointer-events:none;display:none;white-space:nowrap}
+@media (orientation:portrait){
+ .title.cover{justify-content:center;gap:4px}
+ .title.cover .coverart{position:relative;inset:auto;width:100%;aspect-ratio:16/9;flex:none;background-size:cover;background-position:center;box-shadow:0 10px 30px #000}
+ .title.cover .tbottom{background:none;padding-top:10px}
+ .title.cover .credit{margin-top:10px}
+ .title.cover .menu{flex-direction:column;align-items:stretch;width:min(80vw,320px)}
+ .rotatehint.on{display:block}
 }
 `;

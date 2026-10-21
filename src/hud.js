@@ -12,7 +12,7 @@ export function buildHUD(root) {
   H.root = root;
   root.innerHTML = `<div id="touch"></div><div class="hud hidden" id="hud">
   <div class="bloodv"></div><div class="vign"></div><div class="lowhp"></div>
-  <div class="vitals"><div class="port"><img id="portimg" alt=""></div><div class="monitor"><div class="row"><span>SHAYLA, RN</span><span class="hr">♥ <span id="bpm">88</span></span></div><div class="ecg">${ecg()}</div><div class="bar"><div id="hpbar"></div></div></div></div>
+  <div class="vitals"><div class="port"><img id="portimg" alt=""></div><div class="monitor"><div class="row"><span>SHAYLA</span><span class="hr">♥ <span id="bpm">88</span></span></div><div class="ecg">${ecg()}</div><div class="bar"><div id="hpbar"></div></div></div></div>
   <div class="kbar" id="kbar"><span>KENNEDY</span><div class="bar"><div id="khp"></div></div></div>
   <div class="obj"><div class="t" id="objt"></div><div class="s" id="objs"></div><div class="prog"><div id="progv"></div><span class="halflbl" id="halflbl" style="display:none"></span></div></div>
   <div class="checklist" id="checklist"></div><div class="boss" id="boss"><div class="n" id="bossn"></div><div class="bar"><div id="bossv"></div></div></div>

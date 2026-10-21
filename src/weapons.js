@@ -1,4 +1,4 @@
-// Weapon definitions + procedural first-person viewmodels (Shayla's tan forearms + green scrub sleeves).
+// Weapon definitions + procedural first-person viewmodels (Shayla's tan forearms + bare arms (tank top)).
 import * as THREE from 'three';
 import { canvasTex } from './util.js';
 import { T } from './world.js';
@@ -17,7 +17,7 @@ const gun = () => m('gun', { color: 0x2c2e33, roughness: 0.35, metalness: 0.65 }
 const gun2 = () => m('gun2', { color: 0x3a3d42, roughness: 0.55, metalness: 0.3 });
 const tan = () => m('tanGun', { color: 0xb59a72, roughness: 0.7, metalness: 0.1 });
 const skin = () => m('skin', { color: 0xb07a55, roughness: 0.62 });
-const scrub = () => m('scrub', { color: 0x2e7d5b, roughness: 0.9 });
+const scrub = () => m('skinArm', { color: 0xb07a55, roughness: 0.62 }); // bare arms: tank top
 const B = (w, h, d, mt, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => { const me = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mt); me.position.set(x, y, z); me.rotation.set(rx, ry, rz); return me; };
 const C = (r1, r2, h, mt, x = 0, y = 0, z = 0, rx = Math.PI / 2, seg = 12) => { const me = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, seg), mt); me.position.set(x, y, z); me.rotation.x = rx; return me; };
 function hand(left = false) {
