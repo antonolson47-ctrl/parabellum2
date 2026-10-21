@@ -313,7 +313,7 @@ function bossDefeated() {
 function onPickup(p, who) {
   const L = G.level, dad = 1;
   if (p.type === 'flower') { L.flowers++; bump('chipb'); sfx('burger'); toast(`💙 COLUMBINE ${L.flowers}/${L.flowersNeed}`, who === 'kennedy' ? 'Kennedy picked it (he sniffed it first)' : 'Something blue', 1.5); bark('pickupBurger', 1, 0.5);
-    if (L.flowers >= L.flowersNeed) { toast('ALL 12 COLUMBINES!', L.kills >= L.quota ? 'Here comes the boss' : `Now finish the trolls · ${L.kills}/${L.quota}`, 2.6); if (L.kills >= L.quota) spawnBoss(); } return; }
+    if (L.flowers >= L.flowersNeed) { toast(`ALL ${L.flowersNeed} COLUMBINES!`, L.kills >= L.quota ? 'Here comes the boss' : `Now finish the trolls · ${L.kills}/${L.quota}`, 2.6); if (L.kills >= L.quota) spawnBoss(); } return; }
   if (p.type === 'gold') { G.run.gold++; bump('chipc'); sfx('coke'); addFingers(3, p.pos); if (who === 'kennedy') G.kennedy.say(pick(['Gold! Honeymoon fund!', 'Ooh, shiny. Mine now.', 'That is a down payment, baby.']), 2, 1); else bark('pickupCoke', 1, 0.45); return; }
   if (p.type.startsWith('relic_')) { L.needRelic = false; sfx('sting'); toast({ brooch: "MOM'S BROOCH", girdle: 'THE LUCKY GIRDLE', necklace: 'THE DIAMOND NECKLACE' }[p.type.slice(6)] || 'GOT IT', 'Got it · get to the exit', 2); return; }
   if (p.type === 'burger') { const n = Math.round(p.value * dad); G.run.burgers += n; bump('chipb'); sfx('burger'); toast(`+${n} 🍔 STEAKBURGERS`, who === 'kennedy' ? 'Kennedy grabbed them (he ate one)' : 'For the reunion', 1.6); if (who === 'kennedy') G.kennedy.say(pick(KENNEDY.burger), 2.5, 1); else bark('pickupBurger', 1, 0.6); showRule(6); }
@@ -404,7 +404,7 @@ function updateHUD(dt) {
   H.bloodv.style.opacity = Math.max(0, pl.hurtT * 1.6, f < 0.3 ? 0.35 : 0);
   const k = G.kennedy; setStyle('kbar', 'display', k.active ? 'flex' : 'none'); if (k.active) setStyle('khp', 'width', (k.down ? 0 : k.hp / k.maxHp * 100).toFixed(0) + '%');
   if (L.survive) { const tl = Math.ceil(L.timeLeft); setText('objt', L.def.obj.toUpperCase()); setText('objs', L.phase === 'fight' ? `Survive ${Math.floor(tl / 60)}:${String(tl % 60).padStart(2, '0')}` : 'Survived!'); setStyle('progv', 'width', ((1 - L.timeLeft / L.survive) * 100).toFixed(1) + '%'); }
-  else { setText('objt', L.def.obj.toUpperCase()); setText('objs', L.phase === 'fight' ? `${L.kills} / ${L.quota} zombies` : L.phase === 'boss' ? 'Kill the boss!' : `Get to the ${L.anc.exit ? L.anc.exit.label : 'exit'}`); setStyle('progv', 'width', (Math.min(1, L.kills / L.quota) * 100).toFixed(1) + '%'); }
+  else { setText('objt', L.def.obj.toUpperCase()); setText('objs', L.phase === 'fight' ? (L.flowersNeed ? `💙 ${L.flowers}/${L.flowersNeed} columbines · ${Math.min(L.kills, L.quota)}/${L.quota} trolls` : `${L.kills} / ${L.quota} zombies`) : L.phase === 'boss' ? 'Kill the boss!' : `Get to the ${L.anc.exit ? L.anc.exit.label : 'exit'}`); setStyle('progv', 'width', (Math.min(1, L.kills / L.quota) * 100).toFixed(1) + '%'); }
   setStyle('halflbl', 'display', L.kennedyCalled ? 'none' : 'block');
   if (L.phase === 'boss' && L.boss) { setStyle('bossv', 'width', (Math.max(0, L.boss.hp / L.boss.maxHp) * 100).toFixed(1) + '%'); }
   setText('fingers', String(S.data.fingers)); setText('burgers', `${itemCount()}/4`); setText('cokes', String((S.data.gold || 0) + G.run.gold)); if (H.teamv) setStyle('teamv', 'width', (G.teamT > 0 ? 100 * G.teamT / 4.5 : Math.min(100, G.team || 0)).toFixed(0) + '%');
@@ -414,7 +414,11 @@ function updateHUD(dt) {
   H.xh.classList.toggle('hit', !!pl.lockTarget);
   if (pl.lockTarget && pl.lockTarget.t) { const s = project(pl.lockTarget.t.aimPoint(tmp), E.camera); if (!s.behind) { H.lock.style.display = 'block'; H.lock.style.transform = `translate(${s.x - 26}px,${s.y - 26}px)`; } else H.lock.style.display = 'none'; } else H.lock.style.display = 'none';
   if (L.phase === 'exit' && L.anc.exit && !L.needRelic) { const e = L.anc.exit; const s = project(tmp.set(e.x, 1.6, e.z), E.camera); let x = s.x, y = s.y; if (s.behind) { x = innerWidth - x; y = innerHeight - 40; } x = clamp(x, 40, innerWidth - 40); y = clamp(y, 60, innerHeight - 60); H.marker.style.display = 'block'; H.marker.style.left = x + 'px'; H.marker.style.top = y + 'px'; setText('marker', `${e.label} · ${Math.round(Math.hypot(G.player.pos.x - e.x, G.player.pos.z - e.z))}m`); }
+  else if (L.phase === 'fight' && L.flowers < L.flowersNeed) { let best = null, bd = 1e9; for (const p of P.list) if (p.alive && p.type === 'flower') { const d = Math.hypot(p.pos.x - G.player.pos.x, p.pos.z - G.player.pos.z); if (d < bd) { bd = d; best = p; } }
+    if (best) { const s = project(tmp.set(best.pos.x, 1.2, best.pos.z), E.camera); let x = s.x, y = s.y; if (s.behind) { x = innerWidth - x; y = innerHeight - 40; } x = clamp(x, 40, innerWidth - 40); y = clamp(y, 60, innerHeight - 60); H.marker.style.display = 'block'; H.marker.style.left = x + 'px'; H.marker.style.top = y + 'px'; H.marker.classList.add('blue'); setText('marker', `💙 COLUMBINE · ${Math.round(bd)}m`); } else H.marker.style.display = 'none'; }
   else H.marker.style.display = 'none';
+  if (L.phase === 'exit') H.marker.classList.remove('blue');
+  if (H.checklist) setText('checklist', ITEMS.map(([k, n]) => `${S.data.items && S.data.items[k] ? '✔' : '○'} ${n.replace('Something ', '').toUpperCase()}`).join('  '));
   if (pl.loaned && pl.weapon === 'rifle') H.bswap.classList.remove('glow');
   updateThreats(dt);
 }

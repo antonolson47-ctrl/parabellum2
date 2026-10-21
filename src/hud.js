@@ -15,7 +15,7 @@ export function buildHUD(root) {
   <div class="vitals"><div class="port"><img id="portimg" alt=""></div><div class="monitor"><div class="row"><span>SHAYLA, RN</span><span class="hr">♥ <span id="bpm">88</span></span></div><div class="ecg">${ecg()}</div><div class="bar"><div id="hpbar"></div></div></div></div>
   <div class="kbar" id="kbar"><span>KENNEDY</span><div class="bar"><div id="khp"></div></div></div>
   <div class="obj"><div class="t" id="objt"></div><div class="s" id="objs"></div><div class="prog"><div id="progv"></div><span class="halflbl" id="halflbl" style="display:none"></span></div></div>
-  <div class="boss" id="boss"><div class="n" id="bossn"></div><div class="bar"><div id="bossv"></div></div></div>
+  <div class="checklist" id="checklist"></div><div class="boss" id="boss"><div class="n" id="bossn"></div><div class="bar"><div id="bossv"></div></div></div>
   <div class="res"><div class="chip" id="chipf">${FINGER}<span id="fingers">0</span></div><div class="chip" id="chipb"><span class="e">💍</span><span id="burgers">0/4</span></div><div class="chip" id="chipc"><span class="e">🪙</span><span id="cokes">0</span></div></div>
   <div class="pausebtn pe" id="pausebtn"><i></i><i></i></div>
   <div class="resetv pe" id="resetv" title="Reset view (zoom + camera)"><svg viewBox="0 0 24 24" width="17" height="17"><circle cx="10" cy="10" r="6.2" fill="none" stroke="#fff" stroke-width="2.2"/><path d="M14.6 14.6l6 6" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/><path d="M10 6.6v6.8M6.6 10h6.8" stroke="#ffd84a" stroke-width="1.8"/></svg><span>RESET</span></div>
@@ -39,7 +39,7 @@ export function buildHUD(root) {
   <div class="toast" id="toast"><span id="toastt"></span><small id="toasts"></small></div>
   <div class="portraitHint" id="phint">↻ Rotate for the best view<br><small>Portrait works too</small></div>
   </div><div id="screens"></div>`;
-  for (const id of ['hpbar', 'bpm', 'khp', 'kbar', 'objt', 'objs', 'progv', 'halflbl', 'boss', 'bossn', 'bossv', 'fingers', 'burgers', 'cokes', 'chipf', 'chipb', 'chipc', 'xh', 'hitm', 'lock', 'marker', 'floats', 'mag', 'res', 'wname', 'ammo', 'sub', 'rule', 'ruleh', 'rulet', 'toast', 'toastt', 'toasts', 'autofire', 'bmelee', 'bswap', 'bedpanico', 'callico', 'meleelbl', 'hud', 'screens', 'phint', 'portimg', 'resetv', 'threats', 'hitdir', 'bturn', 'lookhint', 'teamv'])
+  for (const id of ['hpbar', 'bpm', 'khp', 'kbar', 'objt', 'objs', 'progv', 'halflbl', 'boss', 'bossn', 'bossv', 'fingers', 'burgers', 'cokes', 'chipf', 'chipb', 'chipc', 'xh', 'hitm', 'lock', 'marker', 'floats', 'mag', 'res', 'wname', 'ammo', 'sub', 'rule', 'ruleh', 'rulet', 'toast', 'toastt', 'toasts', 'autofire', 'bmelee', 'bswap', 'bedpanico', 'callico', 'meleelbl', 'hud', 'screens', 'phint', 'portimg', 'resetv', 'threats', 'hitdir', 'bturn', 'lookhint', 'teamv', 'checklist'])
     H[id] = root.querySelector('#' + id);
   H.bloodv = $('.bloodv'); H.lowhp = $('.lowhp'); H.monitor = $('.monitor');
 }

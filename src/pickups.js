@@ -24,10 +24,11 @@ function model(type) {
   else if (type === 'med') { const b = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.22, 0.14), m.med); b.position.y = 0.11; g.add(b); }
   else if (type === 'ammo') { const b = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.2, 0.2), m.ammo); b.position.y = 0.1; g.add(b); }
   else if (type === 'fingers') { const b = new THREE.Mesh(new THREE.SphereGeometry(0.2, 14, 8, 0, 6.3, Math.PI / 2, Math.PI / 2), m.bowl); b.material.side = THREE.DoubleSide; b.position.y = 0.2; g.add(b); for (let i = 0; i < 7; i++) { const f = new THREE.Mesh(new THREE.CapsuleGeometry(0.02, 0.08, 3, 6), m.finger); f.position.set(Math.cos(i) * 0.08, 0.2, Math.sin(i) * 0.08); f.rotation.set(Math.random() * 3, 0, Math.random() * 3); g.add(f); } }
-  else if (type === 'flower') { g.add(columbine(1)); }
+  else if (type === 'flower') { for (const [dx, dz] of [[0, 0], [0.18, 0.1], [-0.15, 0.12]]) { const f = columbine(1.9); f.position.set(dx, 0, dz); g.add(f); }
+    const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.4, 14, 12, 1, true), new THREE.MeshBasicMaterial({ color: 0x4a8cff, transparent: true, opacity: 0.32, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending })); beam.position.y = 7; g.add(beam); g.userData.beam = beam; }
   else if (type === 'gold') { g.add(goldBar()); }
   else if (type.startsWith('relic_')) { const r = relic(type.slice(6)); r.scale.setScalar(1.6); r.position.y = 0.5; g.add(r); const l = new THREE.PointLight(0xfff0c0, 4, 4, 1.5); l.position.y = 1.2; g.add(l); }
-  const ring = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.38, 24), m.ring); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.02; g.add(ring); g.userData.ring = ring;
+  const ring = new THREE.Mesh(type === 'flower' ? new THREE.RingGeometry(0.9, 1.1, 32) : new THREE.RingGeometry(0.3, 0.38, 24), type === 'flower' ? new THREE.MeshBasicMaterial({ color: 0x6aa8ff, transparent: true, opacity: 0.7, depthWrite: false }) : m.ring); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.02; g.add(ring); g.userData.ring = ring;
   g.traverse(o => { if (o.isMesh && o !== ring) o.castShadow = true; });
   return g;
 }
@@ -38,9 +39,9 @@ export function clearPickups() { for (const p of P.list) G.world.scene.remove(p.
 export function updatePickups(dt) {
   const pl = G.player;
   for (const p of P.list) {
-    if (!p.alive) continue; p.t += dt; const kid = p.g.children; for (const c of kid) if (c !== p.g.userData.ring) { c.rotation.y += dt * 1.6; }
+    if (!p.alive) continue; p.t += dt; const kid = p.g.children; for (const c of kid) if (c !== p.g.userData.ring && c !== p.g.userData.beam) { c.rotation.y += dt * 1.6; }
     p.g.userData.ring.scale.setScalar(1 + Math.sin(p.t * 4) * 0.1);
-    let r = 1.25; const k = G.kennedy; let collector = null;
+    let r = p.type === 'flower' ? 2.4 : 1.25; const k = G.kennedy; let collector = null;
     if (Math.hypot(pl.pos.x - p.pos.x, pl.pos.z - p.pos.z) < r) collector = 'player'; else if (k && k.active && !k.down && (p.type === 'flower' || p.type === 'gold') && Math.hypot(k.pos.x - p.pos.x, k.pos.z - p.pos.z) < r) collector = 'kennedy';
     if (collector && !(p.type === 'med' && pl.hp >= pl.maxHp) && !(p.type === 'ammo' && !G.needsAmmo())) {
       p.alive = false; G.world.scene.remove(p.g); G.onPickup(p, collector);

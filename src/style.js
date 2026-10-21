@@ -91,6 +91,8 @@ html.pagezoomed .resetv{background:#c8231d;border-color:#ffd84a;color:#fff;anima
 .toast.show{opacity:1}.toast.red{background:linear-gradient(90deg,rgba(120,13,13,0),rgba(120,13,13,.92) 15%,rgba(120,13,13,.92) 85%,rgba(120,13,13,0))}
 .toast small{display:block;font-family:'Barlow Condensed';font-weight:600;font-size:13px;color:#bfe6ff;text-align:center;letter-spacing:.5px}
 .marker{position:absolute;transform:translate(-50%,-50%);font-family:'Black Ops One';font-size:13px;color:#7dffa8;text-shadow:0 0 6px #000;text-align:center;display:none}
+.marker.blue{color:#8fc0ff;font-size:15px}.marker.blue:before{border-color:#6aa8ff;box-shadow:0 0 12px #6aa8ff}
+.checklist{position:absolute;left:50%;top:calc(58px + env(safe-area-inset-top));transform:translateX(-50%);font-family:'Black Ops One';font-size:11px;letter-spacing:1px;color:#ffe9a8;text-shadow:0 1px 3px #000;white-space:pre;opacity:.9}
 .marker:before{content:"";display:block;margin:0 auto 2px;width:16px;height:16px;border:2px solid #7dffa8;transform:rotate(45deg);box-shadow:0 0 8px #7dffa8}
 .portraitHint{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);padding:10px 16px;border-radius:10px;font-size:16px;text-align:center;display:none}
 
@@ -161,6 +163,7 @@ html.pagezoomed .resetv{background:#c8231d;border-color:#ffd84a;color:#fff;anima
 .results b{color:#ffd84a}
 @media (orientation:portrait){
  .obj{top:calc(96px + env(safe-area-inset-top))}
+ .checklist{top:calc(140px + env(safe-area-inset-top));font-size:10px}
  .obj .t{font-size:13px}.obj .s{font-size:13px}.prog{width:160px}
  .res{top:calc(62px + env(safe-area-inset-top));right:calc(8px + env(safe-area-inset-right));gap:4px}
  .resetv{top:calc(96px + env(safe-area-inset-top));right:calc(8px + env(safe-area-inset-right))}

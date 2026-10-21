@@ -163,7 +163,7 @@ export const LEVELS = [
         pickups: [['med', -9, -10], ['med', 9, 4], ['ammo', 0, -20], ['ammo', 0, 10], ['fingers', -11, -50, 20], ['fingers', 11, 30, 15]] };
     } },
   // 6 ─────────────────────────────── GARDEN OF THE GODS (day, Pikes Peak) — collect blue columbines
-  { id: 'garden', name: 'Garden of the Gods', shift: 'SCENE 6 · SOMETHING BLUE', obj: 'Pick 12 blue columbines', music: 'garden', quota: 46, flowers: 12, outfits: ['troll', 'troll', 'hiker', 'tourist', 'troll'], mix: { walker: 0.35, runner: 0.2, brute: 0.35, spitter: 0.1 }, trolls: true,
+  { id: 'garden', name: 'Garden of the Gods', shift: 'SCENE 6 · SOMETHING BLUE', obj: 'Pick 5 blue columbines', music: 'garden', quota: 40, flowers: 5, outfits: ['troll', 'troll', 'hiker', 'tourist', 'troll'], mix: { walker: 0.35, runner: 0.2, brute: 0.35, spitter: 0.1 }, trolls: true,
     env: { sky: ['#2a68d8', '#d8ecf8'], fog: ['#d8d0c8', 60, 160], hemi: ['#fff4e6', '#6a4a30', 1.0], sun: ['#fff0d8', 2.8, 20, 28, -10], exposure: 0.92 },
     boss: { kind: 'zombie', name: 'THE TROLL KING OF KISSING CAMELS', outfit: 'troll', hp: 3400, scale: 2.6, charge: true, spit: 'rock', spitRate: 2.2 },
     build(W) {
@@ -181,7 +181,7 @@ export const LEVELS = [
       ambient(W, { n: 140, color: '#fff6d8', size: 0.04, area: 32, h: 8 });
       return { start: { x: 0, z: 34, yaw: yawFacing(0, -1) }, kennedy: { x: 2.5, z: 35 }, exit: { x: 0, z: -36, label: 'MINE SHAFT' }, bossAt: { x: 0, z: -16 },
         spawnZones: [[-38, -38, -22, 38], [22, -38, 38, 38], [-20, -38, 20, -32]],
-        pickups: [['flower', -24, 22], ['flower', 22, 26], ['flower', -12, 10], ['flower', 8, 4], ['flower', -26, -12], ['flower', 30, -18], ['flower', -4, -12], ['flower', 14, -22], ['flower', -32, 30], ['flower', 34, 16], ['flower', -20, -34], ['flower', 4, 24],
+        pickups: [['flower', 2.5, 25], ['flower', -2.5, 13], ['flower', 2.5, 1], ['flower', -2.5, -9], ['flower', 2, -24],
           ['med', -10, 0], ['med', 18, 0], ['ammo', 0, -6], ['ammo', -20, 16], ['fingers', 36, -36, 25]] };
     } },
   // 7 ─────────────────────────────── THE GOLD MINE (boss: Old Man Grubstake)
