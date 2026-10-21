@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { T, std, texMat, signTex } from './world.js';
 import { PM, building, car, truck, tree, pine, lamp, bench, table, shelf, bed, curtain, vending, stall, pumpkins, hay, chairRow, stringLights, bike, grill, cooler, windowTex } from './props.js';
 import { rand } from './util.js';
+import { grillInterior } from './grill.js';
 import { skyDome, mountains, redRock, juniper, grandstand, lightTower, turfTex, storefront, globeLamp, shieldSign, poleBarn, mineTimber, lantern, rails, oreCart, ambient } from './scenery.js';
 const { col, metal, emis } = PM;
 const yawFacing = (fx, fz) => Math.atan2(-fx, -fz);
@@ -53,7 +54,7 @@ export const LEVELS = [
     boss: { kind: 'zombie', name: 'THE CHURCH LADY', outfit: 'church', hp: 2000, scale: 1.8, spit: 'custard', spitRate: 2 },
     item: 'brooch',
     build(W) {
-      W.bounds = { minX: -12, maxX: 12, minZ: -64, maxZ: 40 };
+      W.bounds = { minX: -12, maxX: 12, minZ: -86.5, maxZ: 40 };
       skyDome(W, { top: '#3a78d0', mid: '#8cc0ec', bot: '#dceaf4', sun: [0.12, 0.35], clouds: 0.6, seed: 2 });
       W.floor(-6, 6, -80, 50, texMat('asph', T.asphalt()), 4); W.floor(-14, -6, -80, 50, texMat('sidewalk', T.concrete('#b8b0a0')), 2); W.floor(6, 14, -80, 50, texMat('sidewalk', T.concrete('#b8b0a0')), 2);
       const stripe = emis('#f2f2e8', 0.15); for (let z = -60; z <= 36; z += 4.5) { W.box(-3.5, 0, z, 2.6, 0.01, 0.12, stripe, { collide: false, cast: false, ry: 0.5 }); W.box(3.5, 0, z, 2.6, 0.01, 0.12, stripe, { collide: false, cast: false, ry: -0.5 }); }
@@ -66,16 +67,13 @@ export const LEVELS = [
       for (let x = -4; x <= 4; x += 2) stringLights(W, -6.6, -12 + x * 6, 6.6, -12 + x * 6, 5.2, 14);
       car(W, 4.6, -20, 0.05, '#111'); car(W, -4.6, 10, Math.PI, '#8a1a1a'); car(W, 4.6, 26, 0, '#c0c4c8'); truck(W, -4.4, -40, Math.PI, '#2a4a8a');
       W.sign(['MAIN ST'], -6.9, 2.6, -2, 1.6, 0.4, { ry: Math.PI / 2, bg: '#1f6a3a', fg: '#fff' });
-      // 67 GRILL at the south end: pole barn, red highway shield, Fizz-Ola sign
-      W.floor(-12, 12, -64, -54, texMat('grassG', T.grass()), 3, 0.005);
-      const pb = poleBarn(W, 0, -66, 16, 9, 4.2, 0);
-      shieldSign(W, 0, 5.5, -61.4, 2.2); W.sign(['Fizz-Ola'], 6.5, 2.4, -61.5, 2, 1.1, { bg: '#c8102e', fg: '#fff', box: 0.05 });
-      W.sign(['67 GRILL', 'CATFISH · BURGERS · SWEET TEA'], -4.8, 3.2, -61.45, 4.4, 1.0, { bg: '#f2efe6', colors: ['#c8102e', '#1a3f8a'] });
-      for (let x = -5; x <= 5; x += 3.3) table(W, x, -65, 1.8, 0.9, texMat('picnicG', T.wood('#8a5a3a')));
-      W.pointLight(0, 3.6, -64, 0xffd8a0, 10, 14);
+      // 67 GRILL at the south end: walk in through the front door, fight through the dining room to Mom at the booth
+      const gi = grillInterior(W, 0, -74, { door: true });
+      shieldSign(W, 0, 4.6, -61.75, 2.0, Math.PI); shieldSign(W, 0, 4.6, -61.7, 2.0);
+      W.sign(['67 GRILL', 'CATFISH · BURGERS · SWEET TEA'], -6, 4.6, -61.7, 4.4, 1.0, { bg: '#f2efe6', colors: ['#c8102e', '#1a3f8a'] }); W.sign(['Fizz-Ola'], 6.2, 4.6, -61.7, 2, 1.0, { bg: '#c8102e', fg: '#fff', box: 0.05 });
       ambient(W, { n: 120, color: '#fff2c0', size: 0.035, area: 26, h: 6 });
-      return { start: { x: 0, z: 34, yaw: yawFacing(0, -1) }, kennedy: { x: 2.4, z: 36 }, exit: { x: 0, z: -60, label: '67 GRILL' }, bossAt: { x: 0, z: -40 }, npc: { key: 'mom', x: 1.6, z: -62 },
-        spawnZones: [[-11, -60, -6.5, 30], [6.5, -60, 11, 30], [-5, -54, 5, -30]],
+      return { start: { x: 0, z: 34, yaw: yawFacing(0, -1) }, kennedy: { x: 2.4, z: 36 }, exit: { x: 3, z: -83.2, label: 'MOM' }, bossAt: { x: 0, z: -40 }, npc: { key: 'mom', x: 3, z: -84.6 },
+        spawnZones: [[-11, -60, -6.5, 30], [6.5, -60, 11, 30], [-5, -54, 5, -30], gi.behindBar, gi.behindBar, [-9, -85, -3, -80]],
         pickups: [['med', -9, -5], ['med', 9, -35], ['ammo', 0, -15], ['fingers', -10, -50, 18], ['fingers', 10, 20, 12]] };
     } },
   // 3 ─────────────────────────────── FAYETTEVILLE SQUARE (day)
@@ -188,7 +186,7 @@ export const LEVELS = [
     } },
   // 7 ─────────────────────────────── THE GOLD MINE (boss: Old Man Grubstake)
   { id: 'mine', name: "The Lost Grubstake Mine", shift: 'SCENE 7 · GOLD FEVER', obj: 'Fight through the mine', music: 'mine', quota: 50, outfits: ['miner', 'miner', 'troll', 'hiker'], mix: { walker: 0.45, runner: 0.25, brute: 0.2, spitter: 0.1 }, mineGuns: true,
-    env: { indoor: true, dark: true, sky: ['#050403', '#0a0806'], fog: ['#0e0a06', 10, 46], hemi: ['#ffd8a0', '#100806', 0.35], sun: ['#ffd0a0', 0.25, 3, 10, 4], exposure: 1.25 },
+    env: { indoor: true, dark: true, sky: ['#050403', '#0a0806'], fog: ['#0e0a06', 10, 46], hemi: ['#ffd8a0', '#100806', 0.35], sun: ['#ffd0a0', 0.25, 3, 10, 4], exposure: 1.05 },
     boss: { kind: 'zombie', name: 'OLD MAN GRUBSTAKE', outfit: 'miner', hp: 6500, scale: 2.7, charge: true, spit: 'dynamite', spitRate: 2.0, miner: true, rock: true },
     build(W) {
       W.bounds = { minX: -30, maxX: 30, minZ: -60, maxZ: 12 };
@@ -209,7 +207,7 @@ export const LEVELS = [
       // gun crate at the entrance (rocket launcher + minigun)
       W.box(-1.8, 0, 8, 1.6, 0.8, 0.9, texMat('crate', T.wood('#7a5a30'))); W.sign(['KENNEDY\'S', 'DO NOT OPEN (OPEN IT)'], -1.8, 0.45, 8.47, 1.4, 0.5, { bg: '#3a4a20', colors: [gold, '#fff'] });
       W.sign(['THE LOST GRUBSTAKE MINE', 'est. 1891 · no refunds · no survivors'], 0, 3.3, 11.65, 5, 1.0, { ry: Math.PI, bg: '#2a1a0a', colors: [gold, '#e8d8b8'] });
-      W.pointLight(0, 3, 8, 0xffd8a0, 10, 14);
+      W.pointLight(0, 3, 8, 0xffd8a0, 10, 14); W.pointLight(0, 3.8, -45, 0xffb860, 18, 22);
       ambient(W, { n: 260, color: '#ffc880', size: 0.03, area: 26, h: 4, kind: 'dust' });
       const gold2 = []; for (const [x, z] of [[-1.5, 2], [1.5, -6], [-16, -2], [-22, -10], [-18, -28], [-24, -18], [16, -4], [24, -16], [20, -28], [26, -6], [-1, -20], [1, -30], [-20, -44], [-8, -54], [8, -54], [20, -46], [-26, -56], [26, -56], [0, -44], [12, -40]]) gold2.push(['gold', x, z, 1]);
       return { start: { x: 0, z: 6, yaw: yawFacing(0, -1) }, kennedy: { x: 1.6, z: 8 }, exit: { x: 0, z: -58, label: 'DAYLIGHT' }, bossAt: { x: 0, z: -48 },

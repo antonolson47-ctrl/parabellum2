@@ -23,7 +23,7 @@ export class Player {
     this.VM = {}; this.vmRoot = new THREE.Group(); E.camera.add(this.vmRoot); for (const k of [...ORDER, 'bedpan']) { const vm = createVM(k); vm.visible = false; this.vmRoot.add(vm); this.VM[k] = vm; }
     this.casings = new Casings(E.scene); this.shellQ = []; this.refreshVM();
     this.vmLight = new THREE.PointLight(0xfff2dd, 0.6, 1.2); this.vmLight.position.set(0.1, 0.1, 0); this.vmRoot.add(this.vmLight);
-    this.flashlight = new THREE.SpotLight(0xfff4e0, 0, 28, 0.5, 0.55, 1.5); this.flashlight.position.set(0.15, -0.1, 0); E.camera.add(this.flashlight); this.flashlight.target.position.set(0, 0, -5); E.camera.add(this.flashlight.target);
+    this.flashlight = new THREE.SpotLight(0xfff4e0, 0, 28, 0.5, 0.55, 1.5); this.flashlight.position.set(0.05, 0.05, -0.8); E.camera.add(this.flashlight); this.flashlight.target.position.set(0, 0, -5); E.camera.add(this.flashlight.target);
   }
   reset(spawn, yaw = 0) {
     this.pos.set(spawn.x, 0, spawn.z); this.yaw = yaw; this.pitch = 0; this.vel.set(0, 0, 0); this.turn = null; this.lookYaw = 0; this.lookIdle = 9; this.turns = 0; this.lastHurtFrom = null;
@@ -31,7 +31,7 @@ export class Player {
     this.ammo = {}; for (const k of ORDER) { const w = this.wstats(k); this.ammo[k] = { mag: w.mag, res: w.reserve }; }
     this.weapon = 'pistol'; this.cool = 0; this.reloading = 0; this.swapT = 0; this.meleeT = 0; this.meleeCd = 0; this.shushed = 0; this.slow = 0; this.loaned = false;
     this.lockTarget = null; this.hurtT = 0; this.lastHurt = -10; this.showWeapon('pistol', true); this.casings.clear(); this.shellQ.length = 0;
-    this.flashlight.intensity = G.level && G.level.dark ? 14 : 0; this.flashlight.castShadow = !!(E.q.flashShadow && G.level && G.level.dark);
+    this.flashlight.intensity = G.level && G.level.dark ? 11 : 0; this.flashlight.castShadow = !!(E.q.flashShadow && G.level && G.level.dark);
   }
   available() { const mine = G.level && G.level.def.mineGuns; return ORDER.filter(k => (k === 'minigun' || k === 'rocket') ? mine : (k === 'pistol' || S.data.owned[k] || (k === 'rifle' && this.loaned))); }
   wstats(k) {

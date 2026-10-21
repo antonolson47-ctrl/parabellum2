@@ -377,17 +377,17 @@ export function buildMinigun(cfg = {}) {
   const eject = new THREE.Object3D(); eject.position.set(0.04, 0.02, 0.04); root.add(eject);
   root.userData = { kind: 'minigun', spin, muzzle, eject }; return root;
 }
-export function buildRocket(cfg = {}) {
-  const root = new THREE.Group();
-  root.add(mm('odg', new THREE.CylinderGeometry(0.058, 0.058, 0.86, 20, 1, true), 0, 0.075, -0.08, Math.PI / 2));
-  root.add(mm('dark', new THREE.CylinderGeometry(0.052, 0.052, 0.84, 16), 0, 0.075, -0.08, Math.PI / 2));
-  for (const z of [-0.5, 0.34]) root.add(mm('anod', new THREE.CylinderGeometry(0.066, 0.066, 0.05, 20), 0, 0.075, z, Math.PI / 2));
-  root.add(mm('polymer', new THREE.BoxGeometry(0.03, 0.09, 0.04), 0, -0.01, 0.06, 0.3));
-  root.add(mm('polymer', new THREE.BoxGeometry(0.028, 0.07, 0.035), 0, 0.0, -0.24));
-  root.add(mm('anod', new THREE.BoxGeometry(0.02, 0.05, 0.08), -0.065, 0.12, -0.1)); root.add(mm('glass', new THREE.BoxGeometry(0.018, 0.03, 0.01), -0.065, 0.14, -0.06));
-  const head = new THREE.Group(); head.add(mm('hullred', new THREE.ConeGeometry(0.05, 0.14, 16), 0, 0, -0.07, -Math.PI / 2)); head.add(mm('odg', new THREE.CylinderGeometry(0.05, 0.05, 0.08, 16), 0, 0, 0.03, Math.PI / 2)); head.position.set(0, 0.075, -0.55); root.add(head);
-  root.add(mm('red', new THREE.BoxGeometry(0.02, 0.012, 0.3), 0.06, 0.075, -0.08));
-  const muzzle = new THREE.Object3D(); muzzle.position.set(0, 0.075, -0.62); root.add(muzzle);
+export function buildRocket(cfg = {}) { // slimmer tube that starts in front of the hands (no rear opening in your face)
+  const root = new THREE.Group(); const zc = -0.3, L = 0.62;
+  root.add(mm('odg', new THREE.CylinderGeometry(0.046, 0.046, L, 20), 0, 0.07, zc, Math.PI / 2));
+  for (const z of [zc - L / 2 + 0.02, zc + L / 2 - 0.02]) root.add(mm('anod', new THREE.CylinderGeometry(0.052, 0.052, 0.035, 20), 0, 0.07, z, Math.PI / 2));
+  root.add(mm('dark', new THREE.CylinderGeometry(0.03, 0.03, 0.012, 16), 0, 0.07, zc + L / 2 + 0.002, Math.PI / 2));
+  root.add(mm('polymer', new THREE.BoxGeometry(0.03, 0.09, 0.04), 0, -0.01, 0.0, 0.3));
+  root.add(mm('polymer', new THREE.BoxGeometry(0.028, 0.07, 0.035), 0, 0.0, -0.3));
+  root.add(mm('anod', new THREE.BoxGeometry(0.018, 0.04, 0.07), -0.055, 0.11, -0.16));
+  const head = new THREE.Group(); head.add(mm('hullred', new THREE.ConeGeometry(0.042, 0.13, 16), 0, 0, -0.065, -Math.PI / 2)); head.add(mm('odg', new THREE.CylinderGeometry(0.042, 0.042, 0.06, 16), 0, 0, 0.02, Math.PI / 2)); head.position.set(0, 0.07, zc - L / 2 - 0.03); root.add(head);
+  root.add(mm('red', new THREE.BoxGeometry(0.012, 0.01, 0.22), 0.047, 0.07, zc));
+  const muzzle = new THREE.Object3D(); muzzle.position.set(0, 0.07, zc - L / 2 - 0.12); root.add(muzzle);
   root.userData = { kind: 'rocket', muzzle, eject: null, mag: head, magHome: head.position.clone(), magAxis: new THREE.Vector3(0, 0, -1) }; return root;
 }
 export function buildGun(kind, cfg = {}) { return kind === 'pistol' ? buildPistol(cfg) : kind === 'rifle' ? buildRifle(cfg) : kind === 'shotgun' ? buildShotgun(cfg) : kind === 'defib' ? buildDefib(cfg) : kind === 'minigun' ? buildMinigun(cfg) : kind === 'rocket' ? buildRocket(cfg) : buildBedpan(); }
@@ -403,7 +403,7 @@ export const RIG = {
   shotgun: { base: [0.11, -0.13, -0.28], R: { p: [0.03, -0.035, 0.11], r: [-0.55, 0.28, -PI / 2], pose: 'pistolR', arm: [0.35, -0.75, 0.55] }, L: { p: [-0.024, -0.034, -0.25], fp: [[1, 0.6, 0], [-0.35, 1, 0]], pose: 'pump', arm: [-0.35, -0.4, 0.85] }, lhAway: [0.0, -0.05, 0.17] },
   defib: { base: [0.14, -0.14, -0.34], R: { p: [0.033, -0.082, 0.024], r: [-0.25, 0.3, -PI / 2], pose: 'pistolR', arm: [0.3, -0.6, 0.75] } },
   minigun: { base: [0.13, -0.16, -0.32], R: { p: [0.0, -0.06, 0.08], r: [-0.3, 0.3, -PI / 2], pose: 'pistolR', arm: [0.35, -0.75, 0.55] }, L: { p: [-0.02, -0.04, -0.2], fp: [[1, 0.6, 0], [-0.35, 1, 0]], pose: 'foregrip', arm: [-0.35, -0.4, 0.85] }, lhAway: [-0.05, -0.25, 0.15] },
-  rocket: { base: [0.15, -0.17, -0.3], R: { p: [0.0, -0.03, 0.06], r: [-0.3, 0.3, -PI / 2], pose: 'pistolR', arm: [0.35, -0.75, 0.55] }, L: { p: [-0.02, -0.02, -0.24], fp: [[1, 0.6, 0], [-0.35, 1, 0]], pose: 'foregrip', arm: [-0.35, -0.4, 0.85] }, lhAway: [-0.05, -0.25, 0.15] },
+  rocket: { base: [0.16, -0.19, -0.3], R: { p: [0.0, -0.03, 0.06], r: [-0.3, 0.3, -PI / 2], pose: 'pistolR', arm: [0.35, -0.75, 0.55] }, L: { p: [-0.02, -0.02, -0.24], fp: [[1, 0.6, 0], [-0.35, 1, 0]], pose: 'foregrip', arm: [-0.35, -0.4, 0.85] }, lhAway: [-0.05, -0.25, 0.15] },
   bedpan: { base: [-0.12, -0.13, -0.4], L: { p: [0.0, -0.012, 0.24], r: [0, 0, PI / 2], pose: 'handle', arm: [-0.3, -0.4, 0.86] } },
 };
 let flashTexture = null;

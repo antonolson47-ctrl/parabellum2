@@ -6,6 +6,7 @@ import { PM, truck, table, cooler, stringLights, building, car, lamp, pine, tree
 import { makeCharacter } from './chars.js';
 import { skyDome, mountains, redRock, juniper, grandstand, lightTower, turfTex, storefront, globeLamp, shieldSign, poleBarn, mineTimber, lantern, oreCart, goldBar, relic, columbine } from './scenery.js';
 import { H } from './hud.js';
+import { grillInterior } from './grill.js';
 import { sfx, playMusic } from './audio.js';
 import { canvasTex, rand, clamp } from './util.js';
 const { col, metal, emis } = PM;
@@ -34,13 +35,10 @@ const SETS = {
     const l = new THREE.PointLight(0xffe0b0, 7, 8, 1.4); l.position.set(0.5, 2.2, 1); W.group.add(l);
     return { hemi: ['#fff0dc', '#3a2a20', 0.9], key: ['#ffe8c8', 1.3, 2, 3, 3], exposure: 1.0 };
   },
-  grill(W, sc) { // 67 Grill: open pole barn, red highway shield
-    sc.background = new THREE.Color('#9cc8f0'); sc.fog = new THREE.Fog('#cfe0ec', 30, 120); skyDome(W, { top: '#3a78d0', mid: '#8cc0ec', bot: '#dceaf4', sun: [0.12, 0.35], clouds: 0.6, seed: 2 });
-    W.floor(-30, 30, -30, 30, texMat('grassG', T.grass()), 3); poleBarn(W, 0, -3.5, 16, 9, 4.2, 0); shieldSign(W, 0, 5.5, 1.1, 2.2);
-    W.sign(['Fizz-Ola'], 6.5, 2.4, 1.0, 2, 1.1, { bg: '#c8102e', fg: '#fff', box: 0.05 }); W.sign(['67 GRILL', 'CATFISH · BURGERS · SWEET TEA'], -4.8, 3.2, 1.05, 4.4, 1.0, { bg: '#f2efe6', colors: ['#c8102e', '#1a3f8a'] });
-    table(W, 0, -1.2, 2.2, 1.0, texMat('picnicG', T.wood('#8a5a3a'))); for (let i = 0; i < 6; i++) tree(W, -14 + i * 5.5, -14 + (i % 2) * 2, 1.4, { color: 0x3a6a2a });
-    const l = new THREE.PointLight(0xffd8a0, 8, 12, 1.4); l.position.set(0, 3.6, -1.5); W.group.add(l);
-    return { hemi: ['#eaf4ff', '#5a5040', 1.0], key: ['#fff1d8', 2.4, 6, 8, 8], exposure: 0.95 };
+  grill(W, sc) { // 67 Grill interior (Anton's photos)
+    sc.background = new THREE.Color('#2a2622'); sc.fog = new THREE.Fog('#2a2622', 18, 40);
+    grillInterior(W, 0, 8, { tables: [[-6, 5], [4.5, 7], [-4, 11], [2.5, 13.5], [-7, -1.5]], fans: [[-2, 4], [3, 9], [-4, 13]] });
+    return { hemi: ['#fff0dc', '#3a3028', 0.9], key: ['#ffe8c8', 0.8, 2, 6, 6], exposure: 1.0 };
   },
   square(W, sc) {
     sc.background = new THREE.Color('#9ccaf0'); sc.fog = new THREE.Fog('#d0e0ea', 30, 120); skyDome(W, { top: '#3a7ad0', mid: '#9ccaf0', bot: '#e4eef4', sun: [0.62, 0.3], clouds: 0.7, seed: 4 });
@@ -100,7 +98,7 @@ export const CINES = {
     { set: 'stadium', cast: { shayla: [9, 34, Math.PI, 'Pistol_Idle_Loop'], kennedy: [10.6, 34.2, Math.PI - 0.2, 'Pistol_Idle_Loop'] }, cam: { close: 'kennedy', dist: 0.72, side: 0.15 }, talk: 'kennedy', lines: [['KENNEDY', 'Your mom called me handsome. I heard it. Arkadelphia, baby. Something old. Let\'s roll.']], card: ['SOMETHING OLD', "Grandma's brooch · Downtown Arkadelphia → 67 Grill"] },
   ],
   mom: [
-    { set: 'grill', card: ['67 GRILL', 'Arkadelphia, AR · lunch rush (literal)'], cast: { mom: [0.4, -1.8, 0.2, 'Idle_Talking_Loop'], shayla: [-0.6, 0.6, Math.PI - 0.3, 'Idle_Loop'], kennedy: [1.6, 0.9, Math.PI + 0.4, 'Pistol_Idle_Loop'] }, cam: { pos: [-2.6, 1.6, 3.4], pos2: [-2.0, 1.55, 2.6], look: [0.4, 1.3, -0.8] }, lines: [['MOM', "There's my girl! Oh honey, you've got brains in your hair. Come here."], ['SHAYLA', 'Hi Mama. Long day. Like, forty zombies long.']] },
+    { set: 'grill', card: ['67 GRILL', 'Arkadelphia, AR · lunch rush (literal)'], cast: { mom: [0.4, -1.8, 0.2, 'Idle_Talking_Loop'], shayla: [-0.6, 0.6, Math.PI - 0.3, 'Idle_Loop'], kennedy: [1.6, 0.9, Math.PI + 0.4, 'Pistol_Idle_Loop'] }, cam: { pos: [-1.8, 1.7, 4.6], pos2: [-1.4, 1.6, 3.6], look: [-0.6, 1.7, -3] }, lines: [['MOM', "There's my girl! Oh honey, you've got brains in your hair. Come here."], ['SHAYLA', 'Hi Mama. Long day. Like, forty zombies long.']] },
     { cam: { close: 'mom', dist: 0.8, side: -0.15 }, talk: 'mom', lines: [['MOM', "This was your great-grandma's. She wore it when she married your great-grandpa, and she stabbed a man with it in 1952. It's good luck."]], fx: 'relic' },
     { cam: { close: 'shayla', dist: 0.72, side: 0.18 }, talk: 'shayla', lines: [['SHAYLA', "Mama... it's perfect. Something old. I'm gonna cry and I've got zombie on my face."]] },
     { cam: { close: 'kennedy', dist: 0.72, side: -0.15 }, talk: 'kennedy', lines: [['KENNEDY', 'Ma\'am, I promise to protect your daughter with my life and several firearms.'], ['MOM', "I know you will, sugar. Now take this catfish to go. Kayleigh called. Something about a lucky... undergarment. In Fayetteville."]] },

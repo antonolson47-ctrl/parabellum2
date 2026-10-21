@@ -22,6 +22,7 @@ import { makeCharacter, makeZombie, LIB, CAST } from './chars.js';
 import { playCine, cineActive, cineTick, actor, cineInfo } from './story.js';
 import { bag, rand, randi, pick, clamp, lerp, angDiff } from './util.js';
 import { decal } from './fx.js';
+import { updateProps, propBlast } from './grill.js';
 import { allTargets } from './zombies.js';
 
 const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3();
@@ -72,7 +73,7 @@ export function initGame() {
   G.onPickup = onPickup; G.onKennedyDown = () => { toast('KENNEDY IS DOWN', 'Stand next to him to pick him up', 2.6, true); };
   G.onTeam = teamEvent; G.onGrab = z => { toast('KENNEDY GOT ONE!', 'HEADSHOT IT for a tandem finisher', 2.2); };
   G.onRocket = rocketBlast; G.spawnWave = n => { for (let i = 0; i < n; i++) { const z = freeZombie(); if (!z) break; const p = spawnPoint(tmp); if (p) z.spawn(p.clone(), Math.random() < 0.3 ? 'runner' : 'walker'); } };
-  G.onBlast = p => { G.player.shake = 0.35; };
+  G.onBlast = p => { G.player.shake = 0.35; if (p) propBlast(G.world, p, 4, 9); };
   G.needsAmmo = () => ORDER.some(k => k !== 'pistol' && G.player.available().includes(k) && G.player.ammo[k].res < G.player.wstats(k).reserve);
   G.callKennedy = () => { if (G.level && G.level.callReady()) teamUp(); }; G.spawnMinion = spawnMinion; G.onMinionKill = m => { addFingers(1, m.pos); };
   G.onBossDead = () => bossDefeated(); G.onBossPhase = t => { say('SHAYLA', t, 3, 3); sfx('roar', null, 0.6); };
@@ -386,6 +387,7 @@ function update(dt) {
   { const pp = G.player.pos; for (const z of Z.list) { if (!z.alive || z.dead || z.rise > 0.3 || z.hold) continue; const dx = pp.x - z.pos.x, dz = pp.z - z.pos.z, d2 = dx * dx + dz * dz, rr = 0.36 + 0.3 * z.scale; if (d2 < rr * rr && d2 > 1e-6) { const d = Math.sqrt(d2), k = (rr - d) / d; pp.x += dx * k; pp.z += dz * k; } } G.world.collide(pp, 0.35, 0.1, 1.7); }
   G.kennedy.update(dt); updateZombies(dt); if (L.boss && L.boss.update) L.boss.update(dt); for (const m of minions) m.update(dt);
   updatePickups(dt); updateFX(dt, G.world); for (const u of G.world.updaters) u(dt, G.time);
+  if (G.world.props) { const ac = propActors; ac.length = 0; ac.push({ x: G.player.pos.x, z: G.player.pos.z, r: 0.35, k: 2.2 }); if (G.kennedy.active) ac.push({ x: G.kennedy.pos.x, z: G.kennedy.pos.z, r: 0.35, k: 2.2 }); for (const z of Z.list) if (z.alive && !z.dead) ac.push({ x: z.pos.x, z: z.pos.z, r: 0.45 * (z.scale || 1), k: z.beh === 'brute' || z.beh === 'boss' ? 6 : 3.6 }); updateProps(G.world, dt, ac); }
   if (!G.noDirector) director(dt);
   // survival level
   if (L.survive && L.phase === 'fight') { L.timeLeft -= dt; if (L.timeLeft <= 0) { L.timeLeft = 0; L.phase = 'exit'; toast('YOU SURVIVED', 'The reunion is ON', 2.5); for (const z of Z.list) if (z.alive && !z.dead) z.damage(9999, 'head', null, null, 'end'); setTimeout(levelComplete, 1500); } }
@@ -507,7 +509,9 @@ function slowmoTick(dt) {
   if (G.slowT > 0) { G.slowT -= dt; if (G.slowT <= 0 || G.mode !== 'play') { G.slowT = 0; if (!(G.teamT > 0)) G.timeScale = 1; if (G.slowFov) { E.camera.fov = G.slowFov; E.camera.updateProjectionMatrix(); G.slowFov = 0; } } }
   if (G.mode === 'play' && G.kennedy && G.kennedy.down && G.kennedyRevive > 0) setText('objs', `Picking Kennedy up… ${Math.round(Math.min(1, G.kennedyRevive) * 100)}%`);
 }
+const propActors = [];
 function rocketBlast(from, at, w) {
+  propBlast(G.world, at, (w.blast || 5) * 1.3, 11);
   sfx('explode', at, 1.3); sfx('crunch'); G.player.shake = 0.45; const r = w.blast || 5; let kills = 0; const g0 = at.clone(); g0.y = 0;
   for (let i = 0; i < 70; i++) particle(at, tmp2.set(rand(-7, 7), rand(1, 8), rand(-7, 7)), new THREE.Color(1, rand(0.35, 0.85), 0.1), rand(0.1, 0.24), rand(0.4, 1.0), 5);
   for (let i = 0; i < 30; i++) particle(at, tmp2.set(rand(-2.5, 2.5), rand(1, 4), rand(-2.5, 2.5)), new THREE.Color(0.22, 0.2, 0.18), rand(0.25, 0.45), rand(1, 1.8), -0.6);
