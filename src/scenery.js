@@ -97,6 +97,7 @@ export function storefront(W, x, z, w, h, ry, o = {}) {
   const glass = std('shopglass', { color: 0x1a2028, roughness: 0.05, metalness: 0.9, emissive: 0x332a18, emissiveIntensity: 0.4 }); W.box(px + fx * 0.02, 0.5, pz + fz * 0.02, w * 0.8, 2.4, 0.06, glass, { ry, collide: false });
   W.box(px, 0, pz, w, 0.5, 0.15, col(o.trim || '#e8e0d0'), { ry, collide: false });
   W.box(px, 2.9, pz, w, 0.12, 0.2, col(o.trim || '#e8e0d0'), { ry, collide: false });
+  if (o.falseFront) { const wd = texMat('ffw' + (o.ffColor || '#8a6a48'), T.wood(o.ffColor || '#8a6a48')); const fh = 2.4; W.box(px - fx * 0.05, h, pz - fz * 0.05, w, fh, 0.3, wd, { ry, collide: false }); W.box(px + fx * 0.12, h + fh, pz + fz * 0.12, w + 0.4, 0.35, 0.5, col('#3a2a1a'), { ry, collide: false }); W.box(px - fx * 0.05, h + fh + 0.35, pz - fz * 0.05, w * 0.4, 0.9, 0.3, wd, { ry, collide: false }); }
   if (o.awning !== false) { const ac = o.awning || '#1f4fa0'; const am = std('awn' + ac, { color: ac, roughness: 0.75, side: THREE.DoubleSide }); const aw = new THREE.Mesh(new THREE.BoxGeometry(w * 0.96, 0.08, 1.8), am); aw.position.set(px + fx * 0.9, 3.1, pz + fz * 0.9); aw.rotation.set(0, ry, 0); aw.rotateX(0.38); W.group.add(aw); aw.castShadow = true; const val = new THREE.Mesh(new THREE.BoxGeometry(w * 0.96, 0.35, 0.05), am); val.position.set(px + fx * 1.75, 2.62, pz + fz * 1.75); val.rotation.y = ry; W.group.add(val); }
   if (o.sign) W.sign(Array.isArray(o.sign) ? o.sign : [o.sign], px + fx * 0.05, 3.75, pz + fz * 0.05, Math.min(w * 0.85, 7), 0.8, { ry, bg: o.signBg || '#1a1a1a', fg: o.signFg || '#f2e6c8', neon: o.neon, box: 0.08 });
   W.box(x - fx * d / 2, h, z - fz * d / 2, w + 0.2, 0.5, d + 0.2, col(o.cornice || '#5a3a2a'), { ry, collide: false });
@@ -218,7 +219,7 @@ export function bisonStatue(W, x, z, ry = 0, s = 1) {
   add(new THREE.CylinderGeometry(0.06 * s, 0.03 * s, 1.2 * s, 6), hide, -3.1, Y + 2.4, 0, 1, 1, 1, 0, -0.5); // tail
   const eyes = []; for (const sz of [-1, 1]) { const em = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0xff3010, emissiveIntensity: 0, roughness: 0.3 }); eyes.push(em); add(new THREE.SphereGeometry(0.11 * s, 8, 6), em, 3.0, Y + 2.45, sz * 0.5); }
   const eyeLight = new THREE.PointLight(0xff3010, 0, 10, 2); eyeLight.position.set(3.4 * s, (Y + 2.45) * s, 0); g.add(eyeLight);
-  W.collider(x - 3.8 * s, z - 3.8 * s, x + 3.8 * s, z + 3.8 * s, 0, 6 * s);
+  W.collider(x - 3.8 * s, x + 3.8 * s, z - 3.8 * s, z + 3.8 * s, 0, 6 * s);
   // plaque
   W.sign(['WORLD\'S LARGEST-ISH BUFFALO', 'est. 1962 · please do not climb'], x + Math.sin(ry) * 1.75 * s, 0.75 * s, z + Math.cos(ry) * 1.75 * s, 3.4 * s, 0.8 * s, { ry, bg: '#4a3a2a', colors: ['#f2e2b8', '#d8c8a0'], box: 0.05 });
   return { group: g, eyes, eyeLight, front: { x: x + Math.sin(ry) * 3 * s, z: z + Math.cos(ry) * 3 * s } };
@@ -230,3 +231,32 @@ export function tumbleweeds(W, n, area) { // purely visual: roll + bounce with t
   W.updaters.push((dt, time) => { for (const o of list) { o.t.position.x += o.v * dt; o.t.position.z += o.drift * dt; o.t.position.y = o.r + Math.abs(Math.sin(time * 3 + o.ph)) * 0.7; o.t.rotation.z -= o.v * dt / o.r; o.t.rotation.x += o.drift * dt;
     if (o.t.position.x > area[2]) { o.t.position.x = area[0]; o.t.position.z = rand(area[1], area[3]); o.v = rand(3, 6); } } });
 }
+
+// ---------- Old West street dressing ----------
+const WOOD = () => texMat('westWood', T.wood('#7a5a3a')), DWOOD = () => texMat('westWoodD', T.wood('#5a3e26'));
+export function wagonWheel(r = 0.6) { const g = new THREE.Group(); const iron = std('wIron', { color: 0x2a2622, roughness: 0.6, metalness: 0.5 }), wd = std('wSpoke', { color: 0x8a6a42, roughness: 0.9 });
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(r, r * 0.07, 6, 24), iron); g.add(rim); const hub = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.14, r * 0.14, r * 0.25, 10), wd); hub.rotation.x = Math.PI / 2; g.add(hub);
+  for (let i = 0; i < 10; i++) { const sp = new THREE.Mesh(new THREE.BoxGeometry(r * 0.05, r * 1.9, r * 0.05), wd); sp.rotation.z = i / 10 * Math.PI; g.add(sp); } g.traverse(o => { o.castShadow = true; }); return g; }
+function horse(color = 0x6a4a2a) { const g = new THREE.Group(); const m = std('horse' + color, { color, roughness: 0.8 }), dk = std('mane', { color: 0x1a120c, roughness: 1 });
+  const add = (geo, mm, x, y, z, rx = 0) => { const me = new THREE.Mesh(geo, mm); me.position.set(x, y, z); me.rotation.x = rx; me.castShadow = true; g.add(me); return me; };
+  add(new THREE.CapsuleGeometry(0.35, 1.1, 6, 12), m, 0, 1.35, 0, Math.PI / 2); add(new THREE.CapsuleGeometry(0.17, 0.6, 4, 8), m, 0, 1.85, 0.8, -0.7); add(new THREE.BoxGeometry(0.22, 0.25, 0.55), m, 0, 2.05, 1.15);
+  add(new THREE.BoxGeometry(0.06, 0.35, 0.6), dk, 0, 2.0, 0.7, -0.7); for (const [x, z] of [[-0.2, 0.55], [0.2, 0.55], [-0.2, -0.55], [0.2, -0.55]]) add(new THREE.CylinderGeometry(0.07, 0.06, 1.1, 6), m, x, 0.55, z);
+  add(new THREE.CylinderGeometry(0.03, 0.06, 0.6, 6), dk, 0, 1.3, -0.95, 0.6); return g; }
+export function coveredWagon(W, x, z, ry = 0, withHorses = true) { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; W.group.add(g);
+  const bed = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.6, 3.4), WOOD()); bed.position.y = 1.0; bed.castShadow = true; g.add(bed);
+  const canvas = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 3.2, 18, 1, true, -Math.PI / 2, Math.PI), std('wCanvas', { color: 0xeee4cc, roughness: 1, side: THREE.DoubleSide })); canvas.rotation.x = Math.PI / 2; canvas.rotation.y = Math.PI / 2; canvas.rotation.z = Math.PI / 2; canvas.position.y = 1.3; canvas.castShadow = true; g.add(canvas);
+  for (const zz of [-1.1, 1.1]) for (const sx of [-0.8, 0.8]) { const w = wagonWheel(zz > 0 ? 0.5 : 0.65); w.rotation.y = Math.PI / 2; w.position.set(sx, zz > 0 ? 0.5 : 0.65, zz); g.add(w); }
+  const tongue = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 2), DWOOD()); tongue.position.set(0, 0.6, 2.6); g.add(tongue);
+  if (withHorses) for (const sx of [-0.45, 0.45]) { const h = horse(sx > 0 ? 0x6a4a2a : 0x3a2a1a); h.scale.setScalar(0.85); h.position.set(sx, 0, 4.1); g.add(h); }
+  const L = withHorses ? 5.2 : 3.6; const c = Math.abs(Math.cos(ry)) > 0.5; W.collider(x - (c ? 0.9 : L / 2 + 1), x + (c ? 0.9 : L / 2 + 1), z - (c ? L / 2 + 1 : 0.9), z + (c ? L / 2 + 1 : 0.9), 0, 2.5); return g; }
+export function buckboard(W, x, z, ry = 0) { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; W.group.add(g);
+  const bed = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.35, 2.4), WOOD()); bed.position.y = 0.85; bed.castShadow = true; g.add(bed); const seat = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.5, 0.35), DWOOD()); seat.position.set(0, 1.25, 0.8); g.add(seat);
+  for (const zz of [-0.8, 0.8]) for (const sx of [-0.72, 0.72]) { const w = wagonWheel(0.5); w.rotation.y = Math.PI / 2; w.position.set(sx, 0.5, zz); g.add(w); }
+  for (let i = 0; i < 2; i++) { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.6, 12), DWOOD()); b.position.set(-0.3 + i * 0.6, 1.33, -0.6); g.add(b); }
+  const c = Math.abs(Math.cos(ry)) > 0.5; W.collider(x - (c ? 0.8 : 1.4), x + (c ? 0.8 : 1.4), z - (c ? 1.4 : 0.8), z + (c ? 1.4 : 0.8), 0, 1.6); return g; }
+export function trough(W, x, z, ry = 0) { W.box(x, 0, z, 2.2, 0.7, 0.7, DWOOD(), { ry }); const wtr = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 0.5), std('troughW', { color: 0x4a7a8a, roughness: 0.1, metalness: 0.3 })); wtr.rotation.set(-Math.PI / 2, 0, ry); wtr.position.set(x, 0.66, z); W.group.add(wtr); }
+export function hitchPost(W, x, z, ry = 0) { const fx = Math.cos(ry), fz = -Math.sin(ry); for (const k of [-1, 1]) W.box(x + fx * k, 0, z + fz * k, 0.14, 1.1, 0.14, DWOOD(), { collide: false }); W.box(x, 0.95, z, 2.3, 0.1, 0.1, DWOOD(), { ry, collide: false }); }
+export function barrel(W, x, z) { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.9, 14), WOOD()); m.position.set(x, 0.45, z); m.castShadow = true; W.group.add(m); for (const y of [0.15, 0.75]) { const b = new THREE.Mesh(new THREE.TorusGeometry(0.335, 0.025, 4, 18), std('wIron', { color: 0x2a2622, roughness: 0.6, metalness: 0.5 })); b.rotation.x = Math.PI / 2; b.position.set(x, y, z); W.group.add(b); } const bb = new THREE.Mesh(new THREE.SphereGeometry(0.36, 14, 8), WOOD()); bb.scale.y = 0.0001; W.collider(x - 0.35, x + 0.35, z - 0.35, z + 0.35, 0, 0.9); }
+export function cactus(W, x, z, s = 1) { const m = std('cactus', { color: 0x4a7a3a, roughness: 0.8 }); const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); W.group.add(g); const t = new THREE.Mesh(new THREE.CapsuleGeometry(0.18, 1.4, 4, 10), m); t.position.y = 0.85; g.add(t);
+  for (const [sx, y, h] of [[-1, 0.9, 0.5], [1, 1.2, 0.4]]) { const a = new THREE.Mesh(new THREE.CapsuleGeometry(0.11, 0.25, 4, 8), m); a.rotation.z = Math.PI / 2; a.position.set(sx * 0.3, y, 0); g.add(a); const u = new THREE.Mesh(new THREE.CapsuleGeometry(0.11, h, 4, 8), m); u.position.set(sx * 0.44, y + h / 2 + 0.05, 0); g.add(u); } g.traverse(o => { o.castShadow = true; }); }
+export function sagebrush(W, x, z) { const m = std('sage', { color: 0x8a9a78, roughness: 1 }); for (let i = 0; i < 5; i++) { const b = new THREE.Mesh(new THREE.IcosahedronGeometry(rand(0.2, 0.35), 0), m); b.position.set(x + rand(-0.3, 0.3), rand(0.15, 0.35), z + rand(-0.3, 0.3)); W.group.add(b); } }

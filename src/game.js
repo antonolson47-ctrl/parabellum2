@@ -302,13 +302,17 @@ function onKill(z, region, src, shotgunClose) {
   if (L.phase === 'fight' && L.kills >= L.quota && L.flowers >= L.flowersNeed) spawnBoss();
 }
 function spawnBoss() {
-  const L = G.level; if (!L.def.boss || L.phase !== 'fight') return; const def = { ...L.def.boss }; L.phase = 'boss'; if ((L.def.id === 'mine' || L.def.id === 'stadium' || L.def.id === 'arkadelphia' || L.def.id === 'square') && A.ctx) playMusic('boss');
+  const L = G.level; if (!L.def.boss || L.phase !== 'fight') return; const def = { ...L.def.boss }; L.phase = 'boss'; if ((L.def.id === 'mine' || L.def.id === 'stadium' || L.def.id === 'arkadelphia' || L.def.id === 'square' || L.def.id === 'springs') && A.ctx) playMusic('boss');
   const at = L.anc.bossAt; const b = makeBoss(def, at); L.boss = b; if (!b.z) Z.hittables.push(b);
   H.boss.style.display = 'block'; setText('bossn', def.name); sfx('roar', null, 1); A.intensity = 1;
   if (def.hog) { toast('BOSS INCOMING', def.name, 3.4, true); slowmo(1.2, 0.35); b.aT = 5; b.state = { kind: 'taunt', t: -2.5 }; b.z.hold = true; b.z.ch.play('Idle_Loop', 0.2);
     setTimeout(() => say('SHAYLA', "Oh, HELL no. The mascot's eaten the whole marching band. And he's... three stories tall.", 4, 3), 600);
     setTimeout(() => G.kennedy.active && G.kennedy.say("Babe, he's pointing at you. I think that's flirting. Shoot him in the snout.", 4, 3), 4800);
     setTimeout(() => say('SHAYLA', "Nobody points at the bride. Pig. SOOIE.", 3, 3), 9000); return; }
+  if (def.sheriff) { toast('BOSS INCOMING', def.name, 3.4, true); slowmo(1.2, 0.35); b.aT = 4.5; b.state = { kind: 'taunt', t: -3 }; b.z.hold = true; b.z.ch.play('Idle_Loop', 0.2); sfx('spurs', b.z.pos, 1);
+    setTimeout(() => say('SHAYLA', "A nine-foot dead sheriff with a handlebar mustache. Colorado Springs, you are SO extra.", 4, 3), 600);
+    setTimeout(() => G.kennedy.active && G.kennedy.say("He says this town ain't big enough for the both of us. Babe, it's a whole city. He's just bad at geography.", 4.2, 3), 4800);
+    setTimeout(() => say('SHAYLA', "Draw, McGraw. I've got a necklace to buy.", 3, 3), 9200); return; }
   if (def.bulldog) { toast('BOSS INCOMING', def.name, 3.4, true); slowmo(1.2, 0.35); b.aT = 4.5; b.state = { kind: 'taunt', t: -3 }; b.z.hold = true; b.z.ch.play('Idle_Loop', 0.2);
     setTimeout(() => say('SHAYLA', "Is that a purple bulldog? With a SPIKED collar? On the square? Kayleigh, is this your ex?", 4, 3), 600);
     setTimeout(() => G.kennedy.active && G.kennedy.say("Somebody didn't get walked today. Babe, aim for the jowls. There's a LOT of jowl.", 4, 3), 4800);

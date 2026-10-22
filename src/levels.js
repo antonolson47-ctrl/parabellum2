@@ -4,7 +4,7 @@ import { T, std, texMat, signTex } from './world.js';
 import { PM, building, car, truck, tree, pine, lamp, bench, table, shelf, bed, curtain, vending, stall, pumpkins, hay, chairRow, stringLights, bike, grill, cooler, windowTex } from './props.js';
 import { rand } from './util.js';
 import { grillInterior } from './grill.js';
-import { skyDome, mountains, redRock, juniper, grandstand, lightTower, turfTex, storefront, globeLamp, shieldSign, poleBarn, mineTimber, lantern, rails, oreCart, ambient, bisonStatue, tumbleweeds } from './scenery.js';
+import { skyDome, mountains, redRock, juniper, grandstand, lightTower, turfTex, storefront, globeLamp, shieldSign, poleBarn, mineTimber, lantern, rails, oreCart, ambient, bisonStatue, tumbleweeds, coveredWagon, buckboard, trough, hitchPost, barrel, cactus, sagebrush, wagonWheel } from './scenery.js';
 import { G } from './state.js';
 import { sfx } from './audio.js';
 import { particle, decal } from './fx.js';
@@ -155,23 +155,33 @@ export const LEVELS = [
   // 5 ─────────────────────────────── COLORADO SPRINGS DOWNTOWN (day, mountains)
   { id: 'springs', name: 'Downtown Colorado Springs', shift: 'SCENE 5 · SOMETHING NEW', obj: 'Get to the jewelry store', music: 'springs', quota: 50, outfits: ['tourist', 'hiker', 'shopper', 'cowboy', 'shopper'], mix: { walker: 0.5, runner: 0.22, spitter: 0.1, snatcher: 0.06, brute: 0.12 },
     env: { sky: ['#2a6ad8', '#d0e6f8'], fog: ['#c8dcec', 60, 150], hemi: ['#eaf4ff', '#5a5040', 1.0], sun: ['#fff6e6', 2.7, -12, 30, -6], exposure: 0.92 },
-    boss: { kind: 'zombie', name: 'THE MALL COP', outfit: 'cop', hp: 2600, scale: 1.9, charge: true },
+    boss: { kind: 'zombie', name: 'SHERIFF DEADEYE McGRAW', outfit: 'sheriff', hp: 2900, scale: 2.6, sheriff: true },
     item: 'necklace',
     build(W) {
       W.bounds = { minX: -13, maxX: 13, minZ: -56, maxZ: 40 };
       skyDome(W, { top: '#2a68d0', mid: '#8cc4f0', bot: '#dcecf6', sun: [0.3, 0.3], clouds: 0.5, seed: 8 });
-      mountains(W, { a0: -1.4, a1: 1.4, radius: 128, peak: 46, base: 18, snow: 0.6, rock: '#4a5878', haze: '#b0c8e0', hz: 0.38, peakAt: 0.42, seed: 14 });
-      W.floor(-7, 7, -80, 60, texMat('asph', T.asphalt()), 4); W.floor(-15, -7, -80, 60, texMat('sidewalk2', T.concrete('#c0b8a8')), 2); W.floor(7, 15, -80, 60, texMat('sidewalk2', T.concrete('#c0b8a8')), 2);
-      for (let z = -54; z <= 36; z += 5) W.box(0, 0, z, 0.14, 0.01, 2.6, emis('#e8c020', 0.25), { collide: false, cast: false });
+      // Front Range: far snowy Pikes Peak massif, mid ridges, near foothills (layered haze = depth)
+      mountains(W, { a0: -1.3, a1: 1.3, radius: 158, peak: 70, base: 26, rough: 0.7, snow: 0.58, rock: '#5a6a90', haze: '#b8cce4', hz: 0.42, peakAt: 0.46, seed: 14, y0: -6 });
+      mountains(W, { a0: -1.4, a1: 1.4, radius: 135, peak: 44, base: 18, rough: 0.8, snow: 0.8, rock: '#46557a', haze: '#a8bed8', hz: 0.3, seed: 31, y0: -5 });
+      mountains(W, { a0: -1.5, a1: 1.5, radius: 112, peak: 22, base: 8, rough: 0.9, snow: 3, rock: '#3e5a4a', haze: '#9ab0b8', hz: 0.2, seed: 47, y0: -4 });
+      W.floor(-7, 7, -80, 60, texMat('dirtRoad', T.dirt()), 4); W.floor(-15, -7, -80, 60, texMat('boardwalk', T.wood('#8a6a46')), 2); W.floor(7, 15, -80, 60, texMat('boardwalk', T.wood('#8a6a46')), 2);
       const W1 = [['#8a3a2a', 'PIKES PEAK OUTFITTERS', '#1a4a3a'], ['#c8b08a', 'TEJON ST. TAVERN', '#5a1a1a'], ['#6a4a3a', 'GOLD RUSH BAKERY', '#d8a020'], ['#b8a080', 'ROCKY MTN CHOCOLATE-ISH', '#5a2a1a'], ['#8a4a32', 'OLD TOWN SALOON', '#151515'], ['#a8442e', 'ACACIA BOOKS', '#1f4fa0'], ['#7a3426', 'COLUMBINE CAFE', '#3a5ad0']];
       const E1 = [['#c8b08a', 'ANTLERS HOTEL(ish)', '#1a3a2a'], ['#8a3a2a', 'SKI & SKATE', '#1f4fa0'], ['#9a4a32', 'SPARKLE & SONS FINE JEWELRY', '#1a1a1a'], ['#6a5a4a', 'MOUNTAIN BREW CO.', '#2a6a4a'], ['#c8b08a', 'THE BROADMOOR-ISH', '#5a1a1a'], ['#8a3a2a', 'ELK RIDGE GALLERY', '#151515'], ['#b89a70', 'GARDEN TOURS', '#2a6a4a']];
-      W1.forEach(([c, n, a], i) => storefront(W, -13, -52 + i * 13 + 6.5, 12.6, 10 + (i % 3) * 3, Math.PI / 2, { color: c, sign: n, awning: a }));
-      E1.forEach(([c, n, a], i) => storefront(W, 13, -52 + i * 13 + 6.5, 12.6, 9 + (i % 2) * 4, -Math.PI / 2, { color: c, sign: n, awning: a, neon: i === 2 ? 1.2 : 0, signBg: i === 2 ? '#101018' : undefined, signFg: i === 2 ? '#bfe8ff' : undefined }));
+      W1.forEach(([c, n, a], i) => storefront(W, -13, -52 + i * 13 + 6.5, 12.6, 7 + (i % 3) * 1.5, Math.PI / 2, { color: c, sign: n, awning: a, falseFront: true, ffColor: ['#8a6a48', '#a07a50', '#6a5038'][i % 3] }));
+      E1.forEach(([c, n, a], i) => storefront(W, 13, -52 + i * 13 + 6.5, 12.6, 7 + (i % 2) * 2, -Math.PI / 2, { falseFront: i !== 2, ffColor: ['#8a6a48', '#a07a50'][i % 2], color: c, sign: n, awning: a, neon: i === 2 ? 1.2 : 0, signBg: i === 2 ? '#101018' : undefined, signFg: i === 2 ? '#bfe8ff' : undefined }));
       // jewelry display cases + diamond sign at SPARKLE & SONS (east, z=-19.5)
       W.sign(['💎 DIAMONDS 💎', 'Engagement · Wedding · Apocalypse'], 6.8, 4.9, -19.5, 3.2, 1.0, { ry: -Math.PI / 2, bg: '#101018', colors: ['#bfe8ff', gold], neon: 1.4, box: 0.1 });
       for (const z of [-22, -17]) W.box(10.5, 0, z, 1.0, 1.0, 2.6, std('jcase', { color: 0xdfe8f0, roughness: 0.05, metalness: 0.6, emissive: 0x405060, emissiveIntensity: 0.4 }), { });
-      for (let z = -50; z <= 34; z += 12) { lamp(W, -7.3, z, 4.6, false); lamp(W, 7.3, z + 6, 4.6, false); tree(W, -10.5, z + 3, 1.0, { color: 0x3a6a2a }); }
-      car(W, 4.6, -30, 0, '#1a1a1a'); car(W, -4.6, -6, Math.PI, '#4a6a8a'); car(W, 4.6, 16, 0.1, '#c8c4b0'); truck(W, -4.4, 28, Math.PI, '#5a2a1a');
+      for (let z = -50; z <= 34; z += 12) { W.cyl(-7.3, 0, z, 0.08, 0.08, 2.6, texMat('postw3', T.wood('#5a3e26'))); lantern(W, -7.3, 2.7, z); W.cyl(7.3, 0, z + 6, 0.08, 0.08, 2.6, texMat('postw3', T.wood('#5a3e26'))); lantern(W, 7.3, 2.7, z + 6); }
+      coveredWagon(W, -4.4, -6, Math.PI, true); buckboard(W, 4.5, -30, 0.05); coveredWagon(W, 4.4, 16, 0.05, false); truck(W, -4.4, 28, Math.PI, '#5a2a1a');
+      for (const [x, z] of [[-8.6, -44], [-8.6, -18], [8.6, -40], [8.6, 4], [-8.6, 12]]) hitchPost(W, x, z, Math.PI / 2);
+      trough(W, -9.2, -16, Math.PI / 2); trough(W, 9.2, 6, Math.PI / 2);
+      for (const [x, z] of [[-11.8, -36], [-11.4, -35.2], [-11.8, 8], [11.6, -8], [11.8, -7.2], [11.6, 24], [-11.6, 30]]) barrel(W, x, z);
+      for (const [x, z, r] of [[-11.5, -26, 0.3], [11.4, 14, -0.2], [-11.5, 20, 0.5]]) hay(W, x, z, r);
+      for (const [x, z, r] of [[-12.2, -2, 0.3], [12.2, -46, -0.4], [12.2, 30, 0.2]]) { const w = wagonWheel(0.6); w.position.set(x, 0.62, z); w.rotation.set(0, Math.PI / 2, r); W.group.add(w); }
+      for (const [x, z, s] of [[-10.8, 36, 1.1], [10.8, 34, 0.9], [-10.6, -54, 1.2], [10.8, -54, 1.0]]) cactus(W, x, z, s);
+      for (const [x, z] of [[-10, 26], [10, 28], [-10.2, -50], [10, -2], [-9.8, 2]]) sagebrush(W, x, z);
+      W.sign(['SALOON', 'whiskey · sarsaparilla · ammo'], -7.8, 3.5, -0.5, 3.2, 0.9, { ry: Math.PI / 2, bg: '#3a2414', colors: ['#f2d890', '#e8d0a8'], box: 0.08 });
       W.sign(['TEJON ST', 'PIKES PEAK AVE'], -7.6, 2.6, 2, 1.8, 0.6, { ry: Math.PI / 2, bg: '#1f6a3a', fg: '#fff' });
       ambient(W, { n: 120, color: '#ffffff', size: 0.035, area: 26, h: 6 });
       return { start: { x: 0, z: 34, yaw: yawFacing(0, -1) }, kennedy: { x: 2.4, z: 36 }, exit: { x: 8.5, z: -19.5, label: 'SPARKLE & SONS' }, bossAt: { x: 0, z: -36 },

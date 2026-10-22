@@ -209,3 +209,68 @@ export function bulldogUpdate(boss, dt) {
   if (Math.random() < 0.5) { start(boss, 'lunge'); return; }
   start(boss, 'howl'); sfx('roar', z.pos, 1);
 }
+
+// ───────── SHERIFF DEADEYE McGRAW (Scene 5, Colorado Springs): zombie gunslinger
+export function sheriffify(boss) {
+  const z = boss.z, b = z.bones;
+  const felt = new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: 1 }), band = new THREE.MeshStandardMaterial({ color: 0x2a1a10, roughness: 0.8 });
+  const duster = new THREE.MeshStandardMaterial({ color: 0x8a7458, roughness: 1, side: THREE.DoubleSide }), tin = new THREE.MeshStandardMaterial({ color: 0xb8a878, metalness: 0.85, roughness: 0.45 });
+  const hair = new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 1 }), gun = new THREE.MeshStandardMaterial({ color: 0x3a3a40, metalness: 0.9, roughness: 0.35 }), grip = new THREE.MeshStandardMaterial({ color: 0xe8dcc0, roughness: 0.5 });
+  const gore = new THREE.MeshStandardMaterial({ color: 0x5a0408, roughness: 0.3, emissive: 0x200000 });
+  // dusty cowboy hat
+  const hat = new THREE.Group(); b.Head.add(hat); hat.position.set(0, 0.12, 0); boss.hogHead = hat;
+  const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.012, 28), felt); brim.scale.z = 0.85; hat.add(brim); const pa = brim.geometry.attributes.position; for (let i = 0; i < pa.count; i++) { const x = pa.getX(i); pa.setY(i, pa.getY(i) + Math.pow(Math.abs(x) / 0.22, 2) * 0.05); } brim.geometry.computeVertexNormals();
+  const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.115, 0.13, 20), felt); crown.position.y = 0.065; hat.add(crown); const crease = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.03, 0.16), band); crease.position.y = 0.13; hat.add(crease);
+  const hb = new THREE.Mesh(new THREE.CylinderGeometry(0.117, 0.117, 0.025, 20, 1, true), band); hb.position.y = 0.02; hat.add(hb);
+  // handlebar mustache + glowing eyes + rot
+  const mu = new THREE.Group(); b.Head.add(mu); mu.position.set(0, -0.03, 0.11); for (const sx of [-1, 1]) { const t = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.011, 6, 12, Math.PI * 1.2), hair); t.position.set(sx * 0.035, 0, 0); t.rotation.set(0, 0, sx > 0 ? -0.6 : Math.PI + 0.6); t.scale.set(1, 1, 0.6); mu.add(t); }
+  for (const sx of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.014, 8, 6), new THREE.MeshBasicMaterial({ color: 0x7dff4a, toneMapped: false })); e.position.set(sx * 0.035, 0.04, 0.095); b.Head.add(e); }
+  const gl = new THREE.PointLight(0x7dff4a, 0.6, 1.5, 2); gl.position.set(0, 0.04, 0.2); b.Head.add(gl);
+  const rot = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 6), new THREE.MeshStandardMaterial({ color: 0x4a5a3a, roughness: 1 })); rot.scale.set(1, 0.8, 0.4); rot.position.set(0.07, -0.02, 0.07); b.Head.add(rot);
+  // duster coat: long open flaps from the spine down past the knees
+  if (b.spine_03 && b.pelvis) { for (const sx of [-1, 1]) { const flap = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.95, 1, 6), duster); const p2 = flap.geometry.attributes.position; for (let i = 0; i < p2.count; i++) { const y = p2.getY(i); p2.setZ(i, -Math.pow((0.475 - y) / 0.95, 1.5) * 0.12); } flap.geometry.computeVertexNormals(); flap.position.set(sx * 0.12, -0.38, 0.1); flap.rotation.y = sx * 0.35; b.pelvis.add(flap); flap.castShadow = true;
+      const back = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 1.0, 1, 6), duster); back.position.set(0, -0.38, -0.13); back.rotation.y = Math.PI; b.pelvis.add(back); }
+    const cape = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, 0.12, 20, 1, true), duster); cape.scale.z = 0.75; cape.position.y = 0.12; b.spine_03.add(cape);
+    const star = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.008, 5), tin); star.rotation.x = Math.PI / 2; star.position.set(-0.08, 0.06, 0.15); b.spine_03.add(star); const star2 = star.clone(); star2.rotation.z = Math.PI / 5; b.spine_03.add(star2);
+    for (let i = 0; i < 4; i++) { const sp = new THREE.Mesh(new THREE.CircleGeometry(rand(0.02, 0.045), 10), gore); sp.position.set(rand(-0.1, 0.12), rand(-0.1, 0.1), 0.155); b.spine_03.add(sp); } }
+  // revolver in the right hand
+  if (b.hand_r) { const rv = new THREE.Group(); const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.16, 8), gun); bar.rotation.x = Math.PI / 2; bar.position.z = 0.1; rv.add(bar); const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.04, 6), gun); cyl.rotation.x = Math.PI / 2; cyl.position.z = 0.02; rv.add(cyl); const gp = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.07, 0.03), grip); gp.position.set(0, -0.04, -0.01); gp.rotation.x = 0.4; rv.add(gp); rv.position.set(0, -0.02, 0.04); b.hand_r.add(rv); boss.gun = rv; }
+  boss.aT = 4; boss.summonT = 9; boss.state = null; boss.bottles = []; boss.fires = []; boss.bullets = [];
+}
+const bottleGeo = new THREE.CylinderGeometry(0.06, 0.07, 0.3, 8);
+function throwBottle(boss, whiskey) { const z = boss.z, pl = G.player; const from = new THREE.Vector3(z.pos.x, z.scale * 1.7, z.pos.z); const to = new THREE.Vector3(pl.pos.x + rand(-1.2, 1.2), 0, pl.pos.z + rand(-1.2, 1.2));
+  const T = 1.1; const v = new THREE.Vector3((to.x - from.x) / T, (0 - from.y + 0.5 * 14 * T * T) / T, (to.z - from.z) / T);
+  const m = new THREE.Mesh(bottleGeo, new THREE.MeshStandardMaterial({ color: whiskey ? 0x8a4a10 : 0x3a6a2a, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.85, emissive: whiskey ? 0x401800 : 0 })); m.scale.setScalar(1.6); m.position.copy(from); G.world.scene.add(m); boss.bottles.push({ m, v, whiskey }); sfx('whoosh', from, 0.6); }
+function shatter(boss, p, whiskey) { sfx('glass', p, 1); sfx('splash', p, 0.5); for (let i = 0; i < 18; i++) particle(tmp.set(p.x, 0.2, p.z), tmp2.set(rand(-3, 3), rand(1, 4), rand(-3, 3)), whiskey ? new THREE.Color(1, 0.6, 0.2) : new THREE.Color(0.9, 0.85, 0.4), rand(0.03, 0.07), 0.7);
+  const pl = G.player; if (Math.hypot(pl.pos.x - p.x, pl.pos.z - p.z) < 1.8) pl.hurt(whiskey ? 8 : 10, boss.z);
+  if (whiskey) { const disk = new THREE.Mesh(new THREE.CircleGeometry(1.7, 24), new THREE.MeshBasicMaterial({ color: 0xff7a20, transparent: true, opacity: 0.45, depthWrite: false, toneMapped: false })); disk.rotation.x = -Math.PI / 2; disk.position.set(p.x, 0.05, p.z); G.world.scene.add(disk); const l = new THREE.PointLight(0xff8a30, 4, 6, 2); l.position.set(p.x, 1, p.z); G.world.scene.add(l); boss.fires.push({ disk, l, x: p.x, z: p.z, t: 4.5, tick: 0 }); } }
+function sheriffProjectiles(boss, dt) { const pl = G.player;
+  for (let i = boss.bottles.length - 1; i >= 0; i--) { const o = boss.bottles[i]; o.v.y -= 14 * dt; o.m.position.addScaledVector(o.v, dt); o.m.rotation.x += dt * 12; if (o.m.position.y <= 0.1) { shatter(boss, o.m.position, o.whiskey); G.world.scene.remove(o.m); boss.bottles.splice(i, 1); } }
+  for (let i = boss.fires.length - 1; i >= 0; i--) { const f = boss.fires[i]; f.t -= dt; f.disk.material.opacity = 0.35 + Math.sin(E.time * 20 + i) * 0.1; f.l.intensity = 3 + Math.random() * 2; if (Math.random() < dt * 30) particle(tmp.set(f.x + rand(-1.4, 1.4), 0.1, f.z + rand(-1.4, 1.4)), tmp2.set(0, rand(1.5, 3), 0), new THREE.Color(1, rand(0.4, 0.8), 0.1), rand(0.05, 0.1), 0.5, -2);
+    f.tick -= dt; if (f.tick <= 0 && Math.hypot(pl.pos.x - f.x, pl.pos.z - f.z) < 1.8) { f.tick = 0.5; pl.hurt(5, boss.z); } if (f.t <= 0) { G.world.scene.remove(f.disk); G.world.scene.remove(f.l); boss.fires.splice(i, 1); } }
+  for (let i = boss.bullets.length - 1; i >= 0; i--) { const o = boss.bullets[i]; o.t -= dt; o.m.position.addScaledVector(o.v, dt); if (!o.hit && o.m.position.distanceTo(tmp.set(pl.pos.x, 1.4, pl.pos.z)) < 0.7) { o.hit = true; pl.hurt(7, boss.z); o.t = 0; } if (o.t <= 0) { G.world.scene.remove(o.m); boss.bullets.splice(i, 1); } } }
+function fireVolley(boss, n) { const z = boss.z, pl = G.player; const from = new THREE.Vector3(z.pos.x + Math.sin(z.yaw) * 0.8, z.scale * 1.35, z.pos.z + Math.cos(z.yaw) * 0.8); const to = new THREE.Vector3(pl.pos.x + rand(-0.6, 0.6), 1.4, pl.pos.z + rand(-0.6, 0.6));
+  const v = to.sub(from).normalize().multiplyScalar(26); const m = new THREE.Mesh(new THREE.CapsuleGeometry(0.05, 0.5, 2, 6), new THREE.MeshBasicMaterial({ color: 0xffe080, toneMapped: false })); m.position.copy(from); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), v.clone().normalize()); G.world.scene.add(m); boss.bullets.push({ m, v, t: 2 });
+  sfx('pistol', from, 0.9); particle(from, tmp2.set(0, 0.5, 0), new THREE.Color(1, 0.9, 0.5), 0.15, 0.12, 0); }
+export function sheriffUpdate(boss, dt) {
+  const z = boss.z, pl = G.player; sheriffProjectiles(boss, dt);
+  if (z.dead) { if (!boss.deathFx) { boss.deathFx = true; try { z.popHead(new THREE.Vector3(0, 1, 0)); } catch (e) { } deathBurst(boss); } return; }
+  const dx = pl.pos.x - z.pos.x, dz = pl.pos.z - z.pos.z, d = Math.hypot(dx, dz); const st = boss.state;
+  if (st) { st.t += dt; z.ch.mixer.update(dt); if (st.kind !== 'dash') { z.yaw += angDiff(z.yaw, Math.atan2(dx, dz)) * Math.min(1, dt * 5); z.root.rotation.y = z.yaw; }
+    if (st.kind === 'throw') { const ua = z.bones.upperarm_l; if (ua) ua.rotation.x -= Math.sin(Math.min(1, st.t / 0.6) * Math.PI) * 2; if (st.n < 3 && st.t > 0.45 + st.n * 0.55) { st.n++; throwBottle(boss, st.n === 2 || Math.random() < 0.4); } if (st.t > 2.1) end(boss); }
+    else if (st.kind === 'draw') { const ua = z.bones.upperarm_r; if (ua) ua.rotation.x -= 1.4; // tell: arm up, gun glints, click-click
+      if (st.t < 0.8) { if (boss.gun && Math.random() < dt * 20) particle(boss.gun.getWorldPosition(tmp), tmp2.set(0, 0.3, 0), new THREE.Color(1, 1, 0.6), 0.08, 0.15, 0); if (!st.cl) { st.cl = 1; sfx('click', z.pos, 1); setTimeout(() => sfx('click', z.pos, 1), 250); G.onBossPhase && Math.random() < 0.5 && G.onBossPhase(pick(["He's drawing! Get behind something!", 'Quick-draw! DUCK, babe!', 'Oh, he thinks this is HIS town.'])); } }
+      else if (st.n < 4 && st.t > 0.8 + st.n * 0.22) { st.n++; fireVolley(boss); } if (st.t > 1.9) end(boss); }
+    else if (st.kind === 'dash') { if (!st.dir) { st.dir = { x: dx / (d || 1), z: dz / (d || 1) }; z.yaw = Math.atan2(st.dir.x, st.dir.z); z.root.rotation.y = z.yaw; sfx('spurs', z.pos, 1); z.ch.play('Sprint_Loop', 0.1); }
+      z.pos.x += st.dir.x * 14 * dt; z.pos.z += st.dir.z * 14 * dt; G.world.collide(z.pos, 0.6, 0.1, 2); if (Math.random() < dt * 30) particle(tmp.set(z.pos.x, 0.1, z.pos.z), tmp2.set(rand(-1, 1), rand(0.5, 2), rand(-1, 1)), new THREE.Color(0.7, 0.6, 0.45), 0.08, 0.6);
+      if (!st.hit && d < 2.2) { st.hit = true; pl.hurt(15, z); } if (st.t > 0.9) end(boss); }
+    else if (st.kind === 'summon' || st.kind === 'taunt') { z.pos.y = 0; if (st.kind === 'taunt' && z.bones.upperarm_r) z.bones.upperarm_r.rotation.x -= 1.2 * Math.min(1, Math.max(0, st.t + 3) * 3); if (st.t > (st.kind === 'taunt' ? 1.5 : 1.3)) end(boss); }
+    return; }
+  boss.aT -= dt; boss.summonT -= dt; if (boss.aT > 0 || z.atkPhase > 0) return;
+  boss.aT = rand(3.2, 4.8) * (0.7 + 0.3 * z.hp / z.maxHp);
+  if (boss.summonT <= 0) { boss.summonT = rand(13, 17); start(boss, 'summon'); sfx('roar', z.pos, 1); for (let i = 0; i < 3; i++) { const a = rand(0, 6.28); G.spawnRiser && G.spawnRiser(z.pos.x + Math.cos(a) * 3.5, z.pos.z + Math.sin(a) * 3.5); } G.onBossPhase && G.onBossPhase(pick(["He's deputizing the dead. That's NOT how the law works.", 'Posse incoming! Zombie posse!', 'Kennedy, the deputies are back. Unhire them.'])); return; }
+  const r = Math.random();
+  if (d > 10 && r < 0.4) { boss.state = { kind: 'dash', t: 0 }; z.hold = true; return; }
+  if (r < 0.7) { boss.state = { kind: 'throw', t: 0, n: 0 }; z.hold = true; z.ch.play('Idle_Loop', 0.15); return; }
+  boss.state = { kind: 'draw', t: 0, n: 0 }; z.hold = true; z.ch.play('Idle_Loop', 0.15);
+}

@@ -187,6 +187,8 @@ export function sfx(name, pos, vol = 1) {
     case 'roar': { const o = A.ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(60, t); o.frequency.linearRampToValueAtTime(42, t + 1.4); const f = A.ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 500; const g = A.ctx.createGain(); env(g, t, 0.15, 0.8 * v, 1.3, 0.3, 0.3, 1.2); o.connect(f); f.connect(g); g.connect(D); o.start(t); o.stop(t + 1.8); noise(t, 1.4, 'bandpass', 300, 1, 0.6 * v, D, 0.15); break; }
     case 'phone': for (let i = 0; i < 2; i++) { osc(t + i * 0.5, 'sine', 440, 440, 0.35, 0.18 * v, D); osc(t + i * 0.5, 'sine', 480, 480, 0.35, 0.18 * v, D); } break;
     case 'crash': noise(t, 1.0, 'lowpass', 1800, 0.5, 1.0 * v, D); osc(t, 'sine', 80, 30, 0.6, 1.0 * v, D); for (let i = 0; i < 6; i++) noise(t + 0.05 + i * 0.07, 0.1, 'highpass', 3000 + i * 500, 2, 0.3 * v, D); break;
+    case 'glass': noise(t, 0.25, 'highpass', 3500, 0.8, 0.7 * v, D); osc(t, 'triangle', 2600, 1700, 0.18, 0.25 * v, D); osc(t + 0.04, 'triangle', 3400, 2900, 0.12, 0.18 * v, D); break;
+    case 'spurs': for (let i = 0; i < 4; i++) { osc(t + i * 0.09, 'triangle', 3200 + i * 140, 3000, 0.07, 0.16 * v, D); osc(t + i * 0.09, 'sine', 4700, 4600, 0.05, 0.08 * v, D); } break;
     case 'click': osc(t, 'square', 1200, 1200, 0.03, 0.12 * v, D); break;
     case 'buy': osc(t, 'square', 880, 880, 0.06, 0.15 * v, D); osc(t + 0.07, 'square', 1320, 1320, 0.12, 0.15 * v, D); noise(t + 0.05, 0.2, 'highpass', 5000, 1, 0.2 * v, D); break;
     case 'sting': [0, 4, 7, 12].forEach((iv, i) => osc(t + i * 0.09, 'sawtooth', mtof(57 + iv), mtof(57 + iv), 0.6, 0.12 * v, D)); break;

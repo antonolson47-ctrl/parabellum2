@@ -1,0 +1,31 @@
+const { chromium } = require('playwright'); const serve = require('./serve.cjs');
+(async () => {
+  const s = await serve(); const br = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const p = await (await br.newContext({ viewport: { width: 1280, height: 720 } })).newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const shot = n => p.screenshot({ path: `../screenshots/${n}.png` });
+  const look = (x, z, tx, tz, pitch = 0.05) => p.evaluate(([x, z, tx, tz, pitch]) => { const pl = window.__PB.G.player; pl.pos.set(x, 0, z); pl.yaw = Math.atan2(-(tx - x), -(tz - z)); pl.pitch = pitch; }, [x, z, tx, tz, pitch]);
+  await p.goto(`http://127.0.0.1:${s.address().port}/dist/index.html`);
+  await p.waitForFunction(() => window.__PB && window.__PB.G.mode === 'title', null, { timeout: 240000 });
+  await p.evaluate(() => { const P = window.__PB; P.S.data.seenIntro = true; P.startLevel(4); });
+  await p.waitForFunction(() => window.__PB.G.mode === 'play', null, { timeout: 180000 });
+  await p.evaluate(() => window.__PB.noDirector && window.__PB.noDirector(true));
+  await look(0, 38, 0, -60, 0.12); await sleep(1500); await shot('springs_wide_mountains');
+  await look(0, 10, -3, -20, 0.05); await sleep(1200); await shot('springs_street_wagons');
+  await look(-2, -2, -12, -16, 0.0); await sleep(1200); await shot('springs_boardwalk_props');
+  await look(1, -12, 12, -20, 0.05); await sleep(1200); await shot('springs_jewelry_store');
+  await p.evaluate(() => { const P = window.__PB; P.noDirector && P.noDirector(false); P.toBoss(); P.autopilot(true); });
+  await p.waitForFunction(() => window.__PB.G.level.phase === 'boss', null, { timeout: 120000 });
+  await p.evaluate(() => window.__PB.autopilot(false));
+  await look(0, -18, 0, -36, 0.22); await sleep(2500); await shot('sheriff_boss_intro');
+  await p.evaluate(() => { const b = window.__PB.G.level.boss.z; window.__lookB = [b.pos.x, b.pos.z]; });
+  const bp = await p.evaluate(() => window.__lookB); await look(bp[0] + 0.5, bp[1] + 6, bp[0], bp[1], 0.42); await sleep(800); await shot('sheriff_boss_closeup');
+  await sleep(3500); await look(bp[0] + 1, bp[1] + 12, bp[0], bp[1], 0.2);
+  await p.evaluate(() => { const B = window.__PB.G.level.boss; B.state = { kind: 'throw', t: 0, n: 0 }; B.z.hold = true; B.aT = 6; }); await sleep(1500); await shot('sheriff_bottle_throw'); await sleep(1300); await shot('sheriff_whiskey_fire');
+  await p.evaluate(() => { const B = window.__PB.G.level.boss; B.state = { kind: 'draw', t: 0, n: 0 }; B.z.hold = true; B.aT = 6; }); await sleep(500); await shot('sheriff_quickdraw_tell');
+  await p.evaluate(() => { window.__PB.noDirector && window.__PB.noDirector(false); window.__PB.autopilot(true); window.__PB.G.autoSkipCine = 300; });
+  for (let i = 0; i < 300; i++) { await sleep(2000); const st = await p.evaluate(() => window.__PB.state()); if (st.mode === 'play' && st.level === 5) break;
+    if (st.phase === 'fight' && i > 60) await p.evaluate(() => window.__PB.toBoss()); if (st.phase === 'boss' && i > 90) await p.evaluate(() => window.__PB.hurtBoss(1));
+    await p.evaluate(() => { const G = window.__PB.G; const e = G.level && G.level.anc.exit; if (G.level && G.level.phase === 'exit' && e) window.__PB.tp(e.x, e.z); window.__PB.skipCine(); const b = [...document.querySelectorAll('#screens button')].find(b => /NEXT SCENE|CONTINUE/.test(b.textContent)); if (b) b.click(); }); }
+  console.log('FINAL', JSON.stringify(await p.evaluate(() => [window.__PB.G.mode, window.__PB.G.levelIdx, window.__PB.G.level.def.name])));
+  console.log('ERRS', JSON.stringify(errs)); await br.close(); s.close(); process.exit(0);
+})();
