@@ -78,6 +78,7 @@ export function initGame() {
   G.needsAmmo = () => ORDER.some(k => k !== 'pistol' && G.player.available().includes(k) && G.player.ammo[k].res < G.player.wstats(k).reserve);
   G.callKennedy = () => { if (G.level && G.level.callReady()) teamUp(); }; G.spawnMinion = spawnMinion; G.onMinionKill = m => { addFingers(1, m.pos); };
   G.onBossDead = () => bossDefeated(); G.spawnRiser = (x, z) => { const zz = freeZombie(); if (zz && G.world.isOpen(x, z)) zz.spawn(new THREE.Vector3(x, 0, z), Math.random() < 0.4 ? 'runner' : 'walker', { rise: true }); };
+  G.sayLine = (a, ta, b2, tb) => { say(a, ta, 3.6, 3); if (b2 === 'KENNEDY') setTimeout(() => G.kennedy.active && G.kennedy.say(tb, 3.6, 3), 3800); };
   G.onBossTaunt = () => { const t = pick(['He keeps POINTING at me. Rude.', 'Point at me one more time, hog.', 'Is he... calling his shot? Oh, it is ON.']); say('SHAYLA', t, 2.6, 2); }; G.onBossPhase = t => { say('SHAYLA', t, 3, 3); sfx('roar', null, 0.6); };
   G.onTenureDenied = () => { toast('TENURE DENIED', 'His orbs are gone. He can bleed now.', 2.6); say('SHAYLA', 'Tenure DENIED, motherfucker.', 3, 3); };
   // first gesture -> audio

@@ -199,3 +199,34 @@ export function dressForm(scale = 1) { // tailor's dummy wearing the girdle (cut
   const torso = new THREE.Mesh(new THREE.LatheGeometry([[0.0, 0], [0.13, 0.0], [0.12, 0.1], [0.095, 0.2], [0.12, 0.33], [0.14, 0.42], [0.1, 0.5], [0.04, 0.53], [0, 0.53]].map(p => new THREE.Vector2(p[0], p[1])), 28), linen); torso.scale.z = 0.72; torso.position.y = 0.72; g.add(torso);
   const gd = girdle(1.04); gd.position.y = 0.7; g.add(gd); g.scale.setScalar(scale); return g;
 }
+// ---------- Great Plains roadside giant: shaggy bison on a stone base. Returns { group, eyes:[mats], base:{x,z} } ----------
+export function bisonStatue(W, x, z, ry = 0, s = 1) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; W.group.add(g);
+  const stone = texMat('bisonStone', T.stone('#9a9080')); const hide = std('bisonHide', { color: 0x5a3a22, roughness: 0.95 }), shag = std('bisonShag', { color: 0x3a2414, roughness: 1 }), horn = std('bisonHorn', { color: 0xe8dcc0, roughness: 0.4 }), hoof = std('bisonHoof', { color: 0x1a120c, roughness: 0.6 });
+  const base = new THREE.Mesh(new THREE.BoxGeometry(7 * s, 1.4 * s, 3.4 * s), stone); base.position.y = 0.7 * s; base.castShadow = base.receiveShadow = true; g.add(base);
+  const add = (geo, m, px, py, pz, sx = 1, sy = 1, sz = 1, rx = 0, rz = 0) => { const me = new THREE.Mesh(geo, m); me.position.set(px * s, py * s, pz * s); me.scale.set(sx, sy, sz); me.rotation.x = rx; me.rotation.z = rz; me.castShadow = true; g.add(me); return me; };
+  const Y = 1.4;
+  add(new THREE.SphereGeometry(1.5 * s, 20, 14), hide, -0.8, Y + 2.6, 0, 1.6, 0.9, 0.85); // rear body
+  add(new THREE.SphereGeometry(1.6 * s, 20, 14), shag, 1.0, Y + 3.0, 0, 1.0, 1.25, 1.0); // shaggy hump + shoulders
+  const head = add(new THREE.SphereGeometry(0.85 * s, 16, 12), shag, 2.5, Y + 2.2, 0, 1.15, 1.0, 0.9);
+  add(new THREE.SphereGeometry(0.5 * s, 12, 10), hide, 3.25, Y + 1.85, 0, 1, 0.8, 0.9); // muzzle
+  add(new THREE.SphereGeometry(0.55 * s, 12, 10), shag, 2.6, Y + 1.3, 0, 0.8, 1.3, 0.7); // beard
+  for (const sz of [-1, 1]) {
+    add(new THREE.TorusGeometry(0.35 * s, 0.09 * s, 8, 14, Math.PI * 0.9), horn, 2.45, Y + 2.85, sz * 0.75, 1, 1, 1, 0, sz > 0 ? -0.3 : 0.3).rotation.y = Math.PI / 2;
+    for (const lx of [-1.9, 1.3]) { add(new THREE.CylinderGeometry(0.28 * s, 0.22 * s, 1.9 * s, 10), lx > 0 ? shag : hide, lx, Y + 0.95, sz * 0.75); add(new THREE.CylinderGeometry(0.24 * s, 0.26 * s, 0.25 * s, 10), hoof, lx, Y + 0.12, sz * 0.75); }
+  }
+  add(new THREE.CylinderGeometry(0.06 * s, 0.03 * s, 1.2 * s, 6), hide, -3.1, Y + 2.4, 0, 1, 1, 1, 0, -0.5); // tail
+  const eyes = []; for (const sz of [-1, 1]) { const em = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0xff3010, emissiveIntensity: 0, roughness: 0.3 }); eyes.push(em); add(new THREE.SphereGeometry(0.11 * s, 8, 6), em, 3.0, Y + 2.45, sz * 0.5); }
+  const eyeLight = new THREE.PointLight(0xff3010, 0, 10, 2); eyeLight.position.set(3.4 * s, (Y + 2.45) * s, 0); g.add(eyeLight);
+  W.collider(x - 3.8 * s, z - 3.8 * s, x + 3.8 * s, z + 3.8 * s, 0, 6 * s);
+  // plaque
+  W.sign(['WORLD\'S LARGEST-ISH BUFFALO', 'est. 1962 · please do not climb'], x + Math.sin(ry) * 1.75 * s, 0.75 * s, z + Math.cos(ry) * 1.75 * s, 3.4 * s, 0.8 * s, { ry, bg: '#4a3a2a', colors: ['#f2e2b8', '#d8c8a0'], box: 0.05 });
+  return { group: g, eyes, eyeLight, front: { x: x + Math.sin(ry) * 3 * s, z: z + Math.cos(ry) * 3 * s } };
+}
+export function tumbleweeds(W, n, area) { // purely visual: roll + bounce with the wind, loop across the lot
+  const mat = new THREE.MeshStandardMaterial({ color: 0xa8865a, roughness: 1, wireframe: true }), inner = new THREE.MeshStandardMaterial({ color: 0x8a6a40, roughness: 1, wireframe: true });
+  const list = []; for (let i = 0; i < n; i++) { const r = rand(0.35, 0.7); const t = new THREE.Group(); t.add(new THREE.Mesh(new THREE.IcosahedronGeometry(r, 1), mat)); const in2 = new THREE.Mesh(new THREE.IcosahedronGeometry(r * 0.7, 1), inner); in2.rotation.set(0.5, 0.7, 0.2); t.add(in2); const in3 = new THREE.Mesh(new THREE.DodecahedronGeometry(r * 0.85, 0), mat); in3.rotation.set(1, 0.2, 0.4); t.add(in3); t.traverse(o => { o.castShadow = true; });
+    t.position.set(rand(area[0], area[2]), r, rand(area[1], area[3])); W.group.add(t); list.push({ t, r, v: rand(3, 6), ph: rand(0, 6), drift: rand(-0.6, 0.6) }); }
+  W.updaters.push((dt, time) => { for (const o of list) { o.t.position.x += o.v * dt; o.t.position.z += o.drift * dt; o.t.position.y = o.r + Math.abs(Math.sin(time * 3 + o.ph)) * 0.7; o.t.rotation.z -= o.v * dt / o.r; o.t.rotation.x += o.drift * dt;
+    if (o.t.position.x > area[2]) { o.t.position.x = area[0]; o.t.position.z = rand(area[1], area[3]); o.v = rand(3, 6); } } });
+}

@@ -4,7 +4,10 @@ import { T, std, texMat, signTex } from './world.js';
 import { PM, building, car, truck, tree, pine, lamp, bench, table, shelf, bed, curtain, vending, stall, pumpkins, hay, chairRow, stringLights, bike, grill, cooler, windowTex } from './props.js';
 import { rand } from './util.js';
 import { grillInterior } from './grill.js';
-import { skyDome, mountains, redRock, juniper, grandstand, lightTower, turfTex, storefront, globeLamp, shieldSign, poleBarn, mineTimber, lantern, rails, oreCart, ambient } from './scenery.js';
+import { skyDome, mountains, redRock, juniper, grandstand, lightTower, turfTex, storefront, globeLamp, shieldSign, poleBarn, mineTimber, lantern, rails, oreCart, ambient, bisonStatue, tumbleweeds } from './scenery.js';
+import { G } from './state.js';
+import { sfx } from './audio.js';
+import { particle, decal } from './fx.js';
 const { col, metal, emis } = PM;
 const yawFacing = (fx, fz) => Math.atan2(-fx, -fz);
 function perimeter(W, h, mat, o = {}) { const b = W.bounds; W.wall(b.minX, b.minZ, b.maxX, b.minZ, h, mat, o); W.wall(b.minX, b.maxZ, b.maxX, b.maxZ, h, mat, o); W.wall(b.minX, b.minZ, b.minX, b.maxZ, h, mat, o); W.wall(b.maxX, b.minZ, b.maxX, b.maxZ, h, mat, o); }
@@ -108,11 +111,11 @@ export const LEVELS = [
     } },
   // 4 ─────────────────────────────── I-30 ROAD STOP: FREDDO'S (sunset)
   { id: 'freddos', name: "Freddo's Steakburgers · I-30 Exit 98", shift: 'SCENE 4 · ROAD TRIP', obj: 'Survive the dinner rush', music: 'freddos', quota: 46, outfits: ['custard', 'custard', 'trucker', 'hipster', 'trucker'], mix: { walker: 0.55, runner: 0.18, spitter: 0.1, snatcher: 0.05, brute: 0.12 },
-    env: { sky: ['#2a1f4a', '#ff8a4a'], fog: ['#a06a5a', 40, 120], hemi: ['#ffc8a0', '#2a2030', 0.8], sun: ['#ff9a5a', 2.0, -20, 10, -10], exposure: 1.05 },
+    env: { sky: ['#2a6ad8', '#d8ecf8'], fog: ['#dce8f0', 80, 220], hemi: ['#fff4e2', '#6a5a40', 1.05], sun: ['#fff2d8', 2.9, 18, 30, 10], exposure: 0.95 },
     boss: { kind: 'zombie', name: 'THE CONCRETE MIXER II', outfit: 'custard', hp: 2400, scale: 2.1, spit: 'custard', spitRate: 1.6 },
     build(W) {
       W.bounds = { minX: -32, maxX: 32, minZ: -28, maxZ: 28 };
-      skyDome(W, { top: '#1a1440', mid: '#c85a5a', bot: '#ffb070', sun: [0.75, 0.88], sunCol: '#ffe0a0', clouds: 0.8, seed: 6 });
+      skyDome(W, { top: '#2a6ad8', mid: '#8cc4f0', bot: '#e4f0f8', sun: [0.62, 0.3], sunCol: '#fffbe8', clouds: 0.5, seed: 6 });
       W.floor(-60, 60, -60, 60, texMat('asph', T.asphalt()), 4);
       const stripe = emis('#d8d8c8', 0.15); for (let x = -26; x <= 26; x += 3.2) for (const z of [2, 10]) W.box(x, 0, z, 0.12, 0.01, 4.8, stripe, { collide: false, cast: false });
       const teal = texMat('freddoTeal', T.paint('#18a69f')); const yel = std('freddoYel', { color: 0xffd23b, roughness: 0.5 });
@@ -130,8 +133,21 @@ export const LEVELS = [
       for (const [x, z] of [[-14, -2], [14, -2], [-14, 18], [14, 18], [0, 24]]) lamp(W, x, z, 5, true, 0xffd8a0);
       for (let x = -30; x <= 30; x += 6) tree(W, x, 26.5, 0.9); for (let z = -24; z <= 24; z += 8) { tree(W, -30.5, z, 0.9); tree(W, 30.5, z, 0.9); }
       perimeter(W, 1.0, std('hedge', { color: 0x2a4a22, roughness: 1 }));
-      W.pointLight(0, 3, -12, 0xffc070, 18, 20);
-      ambient(W, { n: 120, color: '#ffd0a0', size: 0.04, area: 30, h: 6 });
+      ambient(W, { n: 60, color: '#fff8e0', size: 0.03, area: 30, h: 6 });
+      // weathered roadside sign
+      W.sign(['Flat as Hell, East Colorado'], -26, 3.0, 20.5, 6.4, 1.3, { ry: Math.PI * 0.75, bg: '#c8b48a', fg: '#4a2a14', box: 0.12 }); for (const dx of [-2.2, 2.2]) W.box(-26 + dx * 0.7, 0, 20.5 - dx * 0.7, 0.18, 2.4, 0.18, texMat('postw2', T.wood('#6a5236')));
+      tumbleweeds(W, 6, [-30, -12, 30, 24]);
+      // roadside giant buffalo that spits zombies out of its base
+      const bis = bisonStatue(W, 23, 0, -Math.PI / 2, 1);
+      let bT = 9, warn = 0, cracked = false; const bx = bis.front.x, bz = bis.front.z;
+      W.updaters.push(dt => { if (!G.level || G.level.phase !== 'fight' || G.mode !== 'play') { for (const e of bis.eyes) e.emissiveIntensity = 0; bis.eyeLight.intensity = 0; return; }
+        bT -= dt; if (bT < 2.2) { const k = 1 - bT / 2.2; for (const e of bis.eyes) e.emissiveIntensity = 3 * k * (0.7 + 0.3 * Math.sin(bT * 30)); bis.eyeLight.intensity = 6 * k; bis.group.position.x = 23 + Math.sin(bT * 60) * 0.04 * k;
+          if (!warn) { warn = 1; sfx('roar', new THREE.Vector3(bx, 1, bz), 1); if (!G.bisonSeen) { G.bisonSeen = true; setTimeout(() => G.sayLine && G.sayLine('SHAYLA', "Babe. The giant buffalo's eyes are glowing. That's not on the brochure.", 'KENNEDY', "Ten bucks says he's the only thing in East Colorado with a bigger hump than my truck."), 300); } }
+          if (Math.random() < dt * 25) particle(new THREE.Vector3(bx + rand(-2, 2), 0.1, bz + rand(-1.5, 1.5)), new THREE.Vector3(rand(-1, 1), rand(1, 3), rand(-1, 1)), new THREE.Color(0.6, 0.5, 0.35), rand(0.04, 0.09), 0.8); }
+        if (bT <= 0) { bT = rand(13, 17); warn = 0; bis.group.position.x = 23; for (const e of bis.eyes) e.emissiveIntensity = 0.6; bis.eyeLight.intensity = 1; sfx('explode', new THREE.Vector3(bx, 0, bz), 0.7);
+          if (!cracked) { cracked = true; decal(new THREE.Vector3(bx, 0, bz), new THREE.Vector3(0, 1, 0), 3.2); }
+          for (let i = 0; i < 30; i++) particle(new THREE.Vector3(bx + rand(-1.5, 1.5), 0.2, bz + rand(-1, 1)), new THREE.Vector3(rand(-4, 2), rand(2, 6), rand(-3, 3)), new THREE.Color(0.45, 0.35, 0.25), rand(0.05, 0.12), 1);
+          const n = 3; for (let i = 0; i < n; i++) G.spawnRiser && G.spawnRiser(bx - 1 - i * 0.8, bz + rand(-2, 2)); } });
       return { start: { x: 0, z: 22, yaw: yawFacing(0, -1) }, kennedy: { x: 2.5, z: 23 }, exit: { x: -20, z: -3, label: "KENNEDY'S TRUCK" }, bossAt: { x: 0, z: -11 },
         spawnZones: [[-30, -26, -12, -15], [12, -26, 30, -15], [-30, 16, -16, 26], [16, 16, 30, 26], [-30, -12, -26, 14], [26, -12, 30, 14]],
         pickups: [['med', 10, 10], ['med', -10, 20], ['ammo', 0, 10], ['ammo', 16, -6], ['fingers', 28, -24, 20], ['fingers', -6, -12.5, 12]] };
